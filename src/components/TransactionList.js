@@ -29,7 +29,7 @@ function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
                                     </td>
                                     <td>₹{txn.amount}</td>
                                     <td className="text-center">
-                                        <div className="d-flex flex-column flex-sm-row justify-content-center gap-1">
+                                        <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
                                             <button
                                                 className="btn btn-sm btn-outline-primary"
                                                 onClick={() => onEdit(txn)}

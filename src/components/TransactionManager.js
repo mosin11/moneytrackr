@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react';
 
 export default function useTransactions() {
-    const [transactions, setTransactions] = useState([]);
+    const [transactions, setTransactions] = useState(() => {
+        const saved = localStorage.getItem('transactionsList');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [editId, setEditId] = useState(null);
     const [formType, setFormType] = useState(null);
     const [description, setDescription] = useState('');
