@@ -162,16 +162,23 @@ function App() {
 
 
   const sendBackup = async () => {
+    debugger;
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email address');
       return;
     }
 
     try {
+      const doc = await exportPDF(transactions, { download: false });
+      const pdfBlob = doc.output('blob');
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('backupData', JSON.stringify(transactions));
+      formData.append('pdf', pdfBlob, 'Cashbook_Report.pdf');
       const response = await fetch(API_ENDPOINTS.BACKUP, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, backupData: transactions }),
+
+        body: formData,
       });
 
       const result = await response.json();
@@ -222,7 +229,7 @@ function App() {
           </div>
           <div className="col-12 col-sm-4">
             <button className="btn btn-danger w-100"
-              onClick={() => exportPDF(transactions)}
+              onClick={() => exportPDF(transactions, { download: true })}
             >📄 Download PDF</button>
           </div>
 
