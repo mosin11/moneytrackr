@@ -1,13 +1,20 @@
 {
   "files": {
     "main.css": "/moneytrackr/static/css/main.6302a97c.css",
-    "main.js": "/moneytrackr/static/js/main.ad1a0c40.js",
+    "main.js": "/moneytrackr/static/js/main.af994066.js",
+    "static/js/239.debcdc26.chunk.js": "/moneytrackr/static/js/239.debcdc26.chunk.js",
+    "static/js/977.c7f4cb77.chunk.js": "/moneytrackr/static/js/977.c7f4cb77.chunk.js",
+    "static/js/455.c1216711.chunk.js": "/moneytrackr/static/js/455.c1216711.chunk.js",
+    "static/media/logo.png": "/moneytrackr/static/media/logo.811b4b94441a2b07fd6c.png",
     "index.html": "/moneytrackr/index.html",
     "main.6302a97c.css.map": "/moneytrackr/static/css/main.6302a97c.css.map",
-    "main.ad1a0c40.js.map": "/moneytrackr/static/js/main.ad1a0c40.js.map"
+    "main.af994066.js.map": "/moneytrackr/static/js/main.af994066.js.map",
+    "239.debcdc26.chunk.js.map": "/moneytrackr/static/js/239.debcdc26.chunk.js.map",
+    "977.c7f4cb77.chunk.js.map": "/moneytrackr/static/js/977.c7f4cb77.chunk.js.map",
+    "455.c1216711.chunk.js.map": "/moneytrackr/static/js/455.c1216711.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6302a97c.css",
-    "static/js/main.ad1a0c40.js"
+    "static/js/main.af994066.js"
   ]
 }
