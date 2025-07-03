@@ -1,9 +1,11 @@
 @echo off
 echo === Adding all changes to Git ===
+git init
+git remote add origin https://github.com/mosin11/moneytrackr.git
 git add .
 
 echo === Committing changes ===
-git commit -m "navbar added and can download report in excel"
+git commit -m "Initial commit of MoneyTrackr project"
 
 echo === Pushing to origin master ===
 git push -u origin master
