@@ -10,6 +10,11 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
             setAmount(editTxn.amount);
             setDesc(editTxn.desc);
             setType(editTxn.type);
+        } else {
+            // When cancelling
+            setAmount('');
+            setDesc('');
+            setType('in');
         }
     }, [editTxn]);
 
@@ -28,7 +33,7 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
         if (!amount || !desc) return;
 
         const txn = {
-            id: editTxn ? editTxn.id : formatDate(Date.now()),
+            id: editTxn ? editTxn.id : Date.now(),
             amount: parseFloat(amount),
             desc,
             type,

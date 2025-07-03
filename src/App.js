@@ -16,20 +16,10 @@ import useTransactions from './components/TransactionManager';
 function App() {
   const {
     transactions,
-    formType,
-    description,
-    cashIn,
-    cashOut,
-    editId,
     editTxn,
     setEditTxn,
-    setFormType,
-    setDescription,
-    setCashIn,
-    setCashOut,
-    startEdit,
-    submitTransaction,
-    setTransactions,
+    setTransactions
+
   } = useTransactions();
 
   const { darkMode, setDarkMode } = useContext(ThemeContext);
@@ -53,6 +43,7 @@ function App() {
     setTransactions([txn, ...transactions]);
   };
   const updateTransaction = (updatedTxn) => {
+    debugger
     setTransactions(transactions.map(t => (t.id === updatedTxn.id ? updatedTxn : t)));
     setEditTxn(null);
   };
@@ -62,6 +53,7 @@ function App() {
     }
   };
   const cancelEdit = () => {
+
     setEditTxn(null);
   };
 
