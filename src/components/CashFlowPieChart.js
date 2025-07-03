@@ -1,10 +1,15 @@
-import { useState } from 'react';
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
+import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from 'recharts';
 import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
+import { useState } from 'react';
+
+const COLORS = ['#00c49f', '#ff8042'];
+const CATEGORY_COLORS = [
+    '#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#8dd1e1', '#a4de6c', '#d0ed57', '#d88884', '#c0c0c0'
+];
+const PLACEHOLDER_COLOR = ['#ccc'];
 
 function CashFlowPieChart({ transactions, tabLabel }) {
-    const [showDrilldown, setShowDrilldown] = useState(false);
+    const [showCategories, setShowCategories] = useState(false);
 
     let totalIn = 0;
     let totalOut = 0;
@@ -22,102 +27,84 @@ function CashFlowPieChart({ transactions, tabLabel }) {
     };
 
     transactions.forEach(t => {
-        totalIn += t.cashIn || 0;
-        totalOut += t.cashOut || 0;
-
-        if (t.cashOut && t.description) {
-            const category = getCategoryFromDescription(t.description);
-            categoryBreakdown[category] = (categoryBreakdown[category] || 0) + t.cashOut;
+        const amount = t.amount || 0;
+        if (t.type === 'in') totalIn += amount;
+        if (t.type === 'out') {
+            totalOut += amount;
+            const category = getCategoryFromDescription(t.desc || '');
+            categoryBreakdown[category] = (categoryBreakdown[category] || 0) + amount;
         }
     });
 
-    const mainChartData = [
-        { name: 'Cash In', y: totalIn, color: '#00c49f' },
-        {
-            name: 'Cash Out',
-            y: totalOut,
-            color: '#ff8042',
-            events: {
-                click: () => setShowDrilldown(true)
-            }
-        }
+    const mainData = [
+        { name: 'Cash In', value: totalIn },
+        { name: 'Cash Out', value: totalOut }
     ];
 
-    const categoryData = Object.entries(categoryBreakdown).map(([name, y]) => ({
-        name,
-        y
-    }));
+    const hasMainData = totalIn > 0 || totalOut > 0;
 
-    const chartOptions = {
-        chart: {
-            type: 'pie',
-            backgroundColor: 'transparent',
-            height: showDrilldown ? '400px' : '300px',
-            events: {
-                click: () => {
-                    if (showDrilldown) setShowDrilldown(false);
-                }
-            }
-        },
-        title: {
-            text: showDrilldown ? `${tabLabel} Cash Out Flow` : `${tabLabel} Cash Flow Distribution`,
-            style: {
-                fontSize: '16px',
-                color: '#fff'
-            }
-        },
-        tooltip: {
-            pointFormat: 'Amount: <b>₹{point.y}</b><br/>Percentage: <b>{point.percentage:.1f}%</b>'
-        },
-        accessibility: {
-            point: { valueSuffix: '%' }
-        },
-        plotOptions: {
-            pie: {
-                allowPointSelect: true,
-                cursor: 'pointer',
-                dataLabels: {
-                    enabled: true,
-                    format: '<b>{point.name}</b><br/>₹{point.y}<br/>({point.percentage:.1f}%)',
-                    style: {
-                        color: '#fff',
-                        textOutline: 'none',
-                        fontSize: '11px'
-                    }
-                }
-            }
-        },
-        legend: {
-            align: 'center',
-            verticalAlign: 'bottom',
-            itemStyle: {
-                fontSize: '12px',
-                color: '#fff'
-            }
-        },
-        series: [{
-            name: showDrilldown ? 'Category' : 'Amount',
-            colorByPoint: true,
-            data: showDrilldown ? categoryData : mainChartData
-        }],
-        credits: {
-            enabled: false
-        }
-    };
+    const categoryData = Object.entries(categoryBreakdown)
+        .filter(([_, v]) => v > 0)
+        .map(([name, value]) => ({ name, value }));
+
+    const hasCategoryData = categoryData.length > 0;
+
+    const displayData = showCategories
+        ? hasCategoryData
+            ? categoryData
+            : [{ name: 'No Category Data', value: 1 }]
+        : hasMainData
+            ? mainData
+            : [{ name: 'No Data Available', value: 1 }];
+
+    const displayColors = showCategories
+        ? hasCategoryData
+            ? CATEGORY_COLORS
+            : PLACEHOLDER_COLOR
+        : hasMainData
+            ? COLORS
+            : PLACEHOLDER_COLOR;
 
     return (
-        <div
-            style={{
-                height: '400px',
-                maxWidth: '480px',
-                margin: '0 auto',
-                transition: 'height 0.3s ease'
-            }}
-        >
-            <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+        <div className="p-2" style={{ maxWidth: '480px', margin: '0 auto' }}>
+            <h6 className="text-center text-secondary">
+                {showCategories ? `${tabLabel} Cash Out Flow` : `${tabLabel} Cash Flow Distribution`}
+            </h6>
+
+            <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                    <Pie
+                        data={displayData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={({ name, value, percent }) =>
+                            name.includes('No Data')
+                                ? name
+                                : `${name}: ₹${value} (${(percent * 100).toFixed(1)}%)`
+                        }
+                        onClick={() => {
+                            if (hasMainData || hasCategoryData) {
+                                setShowCategories(!showCategories);
+                            }
+                        }}
+                    >
+                        {displayData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={displayColors[index % displayColors.length]} />
+                        ))}
+                    </Pie>
+                    {hasMainData || hasCategoryData ? <Tooltip formatter={(value) => `₹${value}`} /> : null}
+                    <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+            </ResponsiveContainer>
+
+            <p className="text-center text-muted" style={{ fontSize: '0.85rem' }}>
+                Tap the chart to {showCategories ? 'view overall summary' : 'see category-wise breakdown'}
+            </p>
         </div>
     );
-
 }
 
 export default CashFlowPieChart;

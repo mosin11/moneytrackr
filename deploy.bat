@@ -9,4 +9,6 @@ git remote add origin https://github.com/mosin11/moneytrackr.git
 git push -u origin main
 
 echo === ✅ Deployment Complete ===
+echo === Deploying to GitHub Pages ===
+npm run deploy
 pause

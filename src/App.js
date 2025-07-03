@@ -201,7 +201,7 @@ function App() {
 
       {/* Main Content */}
       <div className="container px-3">
-        <Header transactions={filteredTransactions} activeTab={activeTab} />
+        <Header transactions={filteredTransactions} tabLabel={activeTab} />
         <DateRangePicker fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} />
 
         {/* Action Buttons */}
