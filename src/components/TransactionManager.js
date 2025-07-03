@@ -8,6 +8,8 @@ export default function useTransactions() {
     const [description, setDescription] = useState('');
     const [cashIn, setCashIn] = useState('');
     const [cashOut, setCashOut] = useState('');
+    const [editTxn, setEditTxn] = useState(null);
+
 
     useEffect(() => {
         const saved = localStorage.getItem('transactionsList');
@@ -90,6 +92,9 @@ export default function useTransactions() {
         startEdit,
         cancelEdit,
         deleteTransaction,
-        submitTransaction
+        submitTransaction,
+        editTxn,
+        setEditTxn
+
     };
 }

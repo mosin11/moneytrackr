@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function TransactionForm({ addTransaction }) {
+function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdit }) {
     const [amount, setAmount] = useState('');
     const [desc, setDesc] = useState('');
     const [type, setType] = useState('in');
+
+    useEffect(() => {
+        if (editTxn) {
+            setAmount(editTxn.amount);
+            setDesc(editTxn.desc);
+            setType(editTxn.type);
+        }
+    }, [editTxn]);
 
     function formatDate(d) {
         const date = new Date(d);
@@ -14,21 +22,28 @@ function TransactionForm({ addTransaction }) {
         const min = String(date.getMinutes()).padStart(2, '0');
         return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
     }
-    const handleSubmit = (e) => {
 
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (!amount || !desc) return;
 
         const txn = {
-            id: formatDate(Date.now()),
+            id: editTxn ? editTxn.id : formatDate(Date.now()),
             amount: parseFloat(amount),
             desc,
             type,
             date: formatDate(new Date())
         };
-        addTransaction(txn);
+
+        if (editTxn) {
+            updateTransaction(txn);
+        } else {
+            addTransaction(txn);
+        }
+
         setAmount('');
         setDesc('');
+        setType('in');
     };
 
     return (
@@ -40,15 +55,21 @@ function TransactionForm({ addTransaction }) {
                 <div className="col-md-3">
                     <input type="number" className="form-control" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
                 </div>
-
                 <div className="col-md-3">
                     <select className="form-select" value={type} onChange={e => setType(e.target.value)}>
                         <option value="in">Cash In</option>
                         <option value="out">Cash Out</option>
                     </select>
                 </div>
-                <div className="col-md-2">
-                    <button className="btn btn-primary w-100">Add</button>
+                <div className="col-md-2 d-flex">
+                    <button className="btn btn-primary me-2 w-100" type="submit">
+                        {editTxn ? 'Update' : 'Add'}
+                    </button>
+                    {editTxn && (
+                        <button type="button" className="btn btn-secondary" onClick={cancelEdit}>
+                            Cancel
+                        </button>
+                    )}
                 </div>
             </div>
         </form>

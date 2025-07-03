@@ -3,8 +3,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 import { ThemeContext } from './ThemeContext';
 import API_ENDPOINTS from './config';
-import * as XLSX from 'xlsx-js-style';
-import { saveAs } from 'file-saver';
 import { exportToExcel } from './utils/exportExcel';
 
 // Components
@@ -23,13 +21,13 @@ function App() {
     cashIn,
     cashOut,
     editId,
+    editTxn,
+    setEditTxn,
     setFormType,
     setDescription,
     setCashIn,
     setCashOut,
     startEdit,
-    cancelEdit,
-    deleteTransaction,
     submitTransaction,
     setTransactions,
   } = useTransactions();
@@ -53,6 +51,18 @@ function App() {
   const addTransaction = (txn) => {
 
     setTransactions([txn, ...transactions]);
+  };
+  const updateTransaction = (updatedTxn) => {
+    setTransactions(transactions.map(t => (t.id === updatedTxn.id ? updatedTxn : t)));
+    setEditTxn(null);
+  };
+  const deleteTransaction = (id) => {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      setTransactions(transactions.filter(t => t.id !== id));
+    }
+  };
+  const cancelEdit = () => {
+    setEditTxn(null);
   };
 
   const formatDate = (d) => {
@@ -250,8 +260,19 @@ function App() {
         <TabFilter activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
 
         {/* Transactions */}
-        <TransactionForm addTransaction={addTransaction} />
-        <TransactionList transactions={filteredTransactions} darkMode={darkMode} />
+
+        <TransactionForm
+          addTransaction={addTransaction}
+          editTxn={editTxn}
+          updateTransaction={updateTransaction}
+          cancelEdit={cancelEdit}
+        />
+        <TransactionList
+          transactions={filteredTransactions}
+          darkMode={darkMode}
+          onEdit={setEditTxn}
+          onDelete={deleteTransaction}
+        />
       </div>
     </>
   );
