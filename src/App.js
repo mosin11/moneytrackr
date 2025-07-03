@@ -4,6 +4,7 @@ import './App.css';
 import { ThemeContext } from './ThemeContext';
 import API_ENDPOINTS from './config';
 import { exportToExcel } from './utils/exportExcel';
+import { exportPDF } from './utils/PdfExporter';
 
 // Components
 import Header from './components/Header';
@@ -220,7 +221,9 @@ function App() {
             >⬇️ Download Excel</button>
           </div>
           <div className="col-12 col-sm-4">
-            <button className="btn btn-danger w-100">📄 Download PDF</button>
+            <button className="btn btn-danger w-100"
+              onClick={() => exportPDF(transactions)}
+            >📄 Download PDF</button>
           </div>
 
           <div className="col-12 col-sm-4">
