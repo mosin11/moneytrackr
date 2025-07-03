@@ -1,24 +1,259 @@
-import logo from './logo.svg';
+import React, { useState, useEffect, useContext } from 'react';
+import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
+import { ThemeContext } from './ThemeContext';
+import API_ENDPOINTS from './config';
+import * as XLSX from 'xlsx-js-style';
+import { saveAs } from 'file-saver';
+import { exportToExcel } from './utils/exportExcel';
+
+// Components
+import Header from './components/Header';
+import TransactionForm from './components/TransactionForm';
+import TransactionList from './components/TransactionList';
+import TabFilter from './components/TabFilter';
+import DateRangePicker from './components/DateRangePicker';
+import useTransactions from './components/TransactionManager';
 
 function App() {
+  const {
+    transactions,
+    formType,
+    description,
+    cashIn,
+    cashOut,
+    editId,
+    setFormType,
+    setDescription,
+    setCashIn,
+    setCashOut,
+    startEdit,
+    cancelEdit,
+    deleteTransaction,
+    submitTransaction,
+    setTransactions,
+  } = useTransactions();
+
+  const { darkMode, setDarkMode } = useContext(ThemeContext);
+  const [email, setEmail] = useState('');
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [activeTab, setActiveTab] = useState('Daily');
+
+  useEffect(() => {
+    const data = localStorage.getItem('transactionsList');
+    if (data) setTransactions(JSON.parse(data));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('transactionsList', JSON.stringify(transactions));
+  }, [transactions]);
+
+  const addTransaction = (txn) => {
+
+    setTransactions([txn, ...transactions]);
+  };
+
+  const formatDate = (d) => {
+
+    const date = new Date(d);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+  };
+
+
+  const downloadExcel = (from, to) => {
+    let exportData = [];
+
+    const parseDate = (str) => {
+      const [dd, mm, yyyy] = str.split('-');
+      return new Date(`${yyyy}-${mm}-${dd}`);
+    };
+
+    if (from && to) {
+      const fromTime = parseDate(from).setHours(0, 0, 0, 0);
+      const toTime = parseDate(to).setHours(23, 59, 59, 999);
+
+      exportData = transactions.filter((t) => {
+        const txTime = new Date(parseCustomDate(t.date)).getTime();
+        return txTime >= fromTime && txTime <= toTime;
+      });
+    } else {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      exportData = transactions.filter((t) => {
+
+        const date = parseCustomDate(t.date);
+        return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+      });
+    }
+
+    const data = exportData.map((t) => ({
+      date: formatDate(new Date(parseCustomDate(t.date))),
+      description: t.desc,
+      'cashIn': t.type === 'in' ? t.amount : '',
+      'cashOut': t.type === 'out' ? t.amount : '',
+    }));
+
+    setFromDate('');
+    setToDate('');
+
+    return data;
+  };
+
+
+  const getWeekNumber = (d) => {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+    return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+  };
+
+  const now = new Date();
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+  function parseCustomDate(dateStr) {
+    const [datePart, timePart] = dateStr.split(' ');
+    const [dd, mm, yyyy] = datePart.split('-').map(Number);
+    const [HH, MM] = timePart ? timePart.split(':').map(Number) : [0, 0];
+    return new Date(yyyy, mm - 1, dd, HH, MM);
+  }
+
+  const filteredTransactions = transactions.filter((t) => {
+    const txDate = parseCustomDate(t.date); // custom parser
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentWeek = getWeekNumber(today);
+    const txWeek = getWeekNumber(txDate);
+
+    switch (activeTab) {
+      case 'Daily':
+        return (
+          txDate.getDate() === today.getDate() &&
+          txDate.getMonth() === today.getMonth() &&
+          txDate.getFullYear() === today.getFullYear()
+        );
+      case 'Weekly':
+        return txDate.getFullYear() === currentYear && txWeek === currentWeek;
+      case 'Monthly':
+        return (
+          txDate.getFullYear() === currentYear &&
+          txDate.getMonth() === currentMonth
+        );
+      case 'LastMonth':
+        return txDate >= lastMonthStart && txDate <= lastMonthEnd;
+      default:
+        return true;
+    }
+  });
+
+
+  const sendBackup = async () => {
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      const response = await fetch(API_ENDPOINTS.BACKUP, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, backupData: transactions }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message || 'Backup sent successfully!');
+        setShowEmailInput(false);
+      } else {
+        alert(result.message || 'Failed to send backup.');
+      }
+    } catch (error) {
+      console.error('Backup error:', error);
+      alert('Something went wrong while sending the backup.');
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {/* Navbar */}
+      <nav className={`navbar ${darkMode ? 'navbar-dark bg-dark' : 'navbar-light bg-white'} border-bottom shadow-sm mb-4`}>
+        <div className="container-fluid">
+          <span className="navbar-brand mb-0 h1 text-primary fw-bold">💰 MoneyTrackr</span>
+          <button
+            className={`btn btn-sm ${darkMode ? 'btn-light' : 'btn-dark'}`}
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <div className="container px-3">
+        <Header transactions={filteredTransactions} activeTab={activeTab} />
+        <DateRangePicker fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} />
+
+        {/* Action Buttons */}
+
+        <div className="row g-2 mb-3">
+
+          <div className="col-12 col-sm-4">
+            <button className="btn btn-success w-100"
+              onClick={() => {
+                const data = downloadExcel(fromDate, toDate);
+                exportToExcel(data, fromDate, toDate);
+              }}
+
+            >⬇️ Download Excel</button>
+          </div>
+          <div className="col-12 col-sm-4">
+            <button className="btn btn-danger w-100">📄 Download PDF</button>
+          </div>
+
+          <div className="col-12 col-sm-4">
+            <button className="btn btn-primary w-100" onClick={() => setShowEmailInput(!showEmailInput)}>📧 Send to Email</button>
+          </div>
+        </div>
+
+        {/* Email Input */}
+        {showEmailInput && (
+          <div className="row g-2 mb-3 align-items-center">
+            <div className="col-12 col-sm-8">
+              <input
+                type="email"
+                className="form-control w-100"
+                placeholder="Enter email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ maxWidth: '300px' }}
+              />
+            </div>
+            <div className="col-12 col-sm-4">
+              <button className="btn btn-secondary w-100" onClick={sendBackup}>Send</button>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs and Date Picker */}
+
+        <TabFilter activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
+
+        {/* Transactions */}
+        <TransactionForm addTransaction={addTransaction} />
+        <TransactionList transactions={filteredTransactions} darkMode={darkMode} />
+      </div>
+    </>
   );
 }
 
