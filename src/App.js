@@ -182,7 +182,12 @@ function App() {
   const sendBackup = async () => {
 
     if (!email || !email.includes('@')) {
-      alert('Please enter a valid email address');
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Please enter a valid email address',
+        text: 'Please enter a valid email address',
+      });
       return;
     }
 
@@ -201,14 +206,27 @@ function App() {
 
       const result = await response.json();
       if (response.ok) {
-        alert(result.message || 'Backup sent successfully!');
+        Swal.fire({
+          icon: 'success',
+          title: '✅ Backup Sent!',
+          text: result.message || 'Backup sent successfully!',
+        });
         setShowEmailInput(false);
       } else {
-        alert(result.message || 'Failed to send backup.');
+
+        Swal.fire({
+          icon: 'error',
+          title: '❌ Backup Sent!',
+          text: result.message || 'Failed to send backup.',
+        });
       }
     } catch (error) {
-      console.error('Backup error:', error);
-      alert('Something went wrong while sending the backup.');
+      Swal.fire({
+        icon: 'error',
+        title: '❌ Error',
+        text: error.message || 'Something went wrong while sending the backup!',
+      });
+
     }
   };
 

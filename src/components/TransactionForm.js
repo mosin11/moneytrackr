@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { cashInKeywords, cashOutKeywords } from '../utils/categoryMapper';
 import stringSimilarity from 'string-similarity';
 import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
+import Swal from 'sweetalert2';
 
 function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdit }) {
     const [amount, setAmount] = useState('');
@@ -52,7 +53,26 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!amount || !desc) return;
+
+        if (!desc.trim()) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Please enter a description',
+                text: 'Please enter a description!',
+            });
+            return;
+        }
+
+        if (isNaN(amount) || amount <= 0) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Please enter a valid amount',
+                text: 'Please enter a valid amount!',
+            });
+            return;
+        }
+
 
         const detectedType = inferType(desc);
         const category = getCategoryFromDescription(desc);
@@ -68,8 +88,18 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
 
         if (editTxn) {
             updateTransaction(txn);
+            Swal.fire({
+                icon: 'success',
+                title: 'Transaction Updated',
+                text: 'Transaction has been updated successfully!',
+            });
         } else {
             addTransaction(txn);
+            Swal.fire({
+                icon: 'success',
+                title: 'Transaction Added',
+                text: 'Transaction has been added successfully!',
+            });
         }
 
         setAmount('');

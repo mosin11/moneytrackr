@@ -82,12 +82,21 @@ export default function useTransactions() {
         const now = new Date();
 
         if (!desc.trim()) {
-            alert('Please enter a description');
+            Swal.fire({
+                icon: 'error',
+                title: 'Please enter a description',
+                text: 'Please enter a description!',
+            });
             return;
         }
 
         if (isNaN(amt) || amt <= 0) {
-            alert('Please enter a valid amount');
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Please enter a valid amount',
+                text: 'Please enter a valid amount!',
+            });
             return;
         }
 
