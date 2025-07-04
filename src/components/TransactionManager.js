@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import stringSimilarity from 'string-similarity';
 import { keywordToCategory, cashInKeywords, cashOutKeywords } from '../utils/categoryMapper'; // Adjust if in a different file
+import Swal from 'sweetalert2';
 
 export default function useTransactions() {
     const [transactions, setTransactions] = useState(() => {
@@ -59,9 +60,21 @@ export default function useTransactions() {
     };
 
     const deleteTransaction = (id) => {
-        if (window.confirm('Delete this transaction?')) {
-            setTransactions(transactions.filter(t => t.id !== id));
-        }
+        Swal.fire({
+            title: 'Delete Transaction?',
+            text: 'Are you sure you want to delete this transaction?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setTransactions(transactions.filter(t => t.id !== id));
+                Swal.fire('Deleted!', 'Transaction has been removed.', 'success');
+            }
+        });
     };
 
     const submitTransaction = () => {
