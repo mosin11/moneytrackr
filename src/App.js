@@ -13,12 +13,14 @@ import TransactionList from './components/TransactionList';
 import TabFilter from './components/TabFilter';
 import DateRangePicker from './components/DateRangePicker';
 import useTransactions from './components/TransactionManager';
+import logo from './assets/logo.png';
+
 
 function App() {
   const {
     transactions,
     editTxn,
-    setEditTxn,
+    startEdit,
     setTransactions
 
   } = useTransactions();
@@ -44,9 +46,9 @@ function App() {
     setTransactions([txn, ...transactions]);
   };
   const updateTransaction = (updatedTxn) => {
-    debugger
+
     setTransactions(transactions.map(t => (t.id === updatedTxn.id ? updatedTxn : t)));
-    setEditTxn(null);
+    startEdit(null);
   };
   const deleteTransaction = (id) => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
@@ -55,7 +57,7 @@ function App() {
   };
   const cancelEdit = () => {
 
-    setEditTxn(null);
+    startEdit(null);
   };
 
   const formatDate = (d) => {
@@ -160,9 +162,12 @@ function App() {
     }
   });
 
+  const handleEdit = (txn) => {
 
+    startEdit(txn);
+  };
   const sendBackup = async () => {
-    debugger;
+
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email address');
       return;
@@ -199,7 +204,17 @@ function App() {
       {/* Navbar */}
       <nav className={`navbar ${darkMode ? 'navbar-dark bg-dark' : 'navbar-light bg-white'} border-bottom shadow-sm mb-4`}>
         <div className="container-fluid">
-          <span className="navbar-brand mb-0 h1 text-primary fw-bold">💰 MoneyTrackr</span>
+          <a className="navbar-brand mb-0 h1 d-flex align-items-center" href="/">
+            <img
+              src={logo}
+              alt="MoneyTrackr Logo"
+              height="40"
+              className="me-2"
+            />
+            <span className="text-primary fw-bold d-none d-sm-block">MoneyTrackr</span>
+          </a>
+
+
           <button
             className={`btn btn-sm ${darkMode ? 'btn-light' : 'btn-dark'}`}
             onClick={() => setDarkMode(!darkMode)}
@@ -272,7 +287,7 @@ function App() {
         <TransactionList
           transactions={filteredTransactions}
           darkMode={darkMode}
-          onEdit={setEditTxn}
+          onEdit={handleEdit}
           onDelete={deleteTransaction}
         />
       </div>

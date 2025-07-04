@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MoneyTrackr Sync</title>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <h2>📤 Syncing Your Transactions to MoneyTrackr...</h2>
+    <p>Please wait, you will be redirected shortly.</p>
+
+    <script>
+        const data = [
+            { id: 1751550572373, date: "2025-07-03T13:49:32.373Z", description: "Vegetable", cashIn: 0, cashOut: 230 },
+            { id: 1751469333467, date: "2025-07-02T15:15:33.467Z", description: "Big basket grocery", cashIn: 0, cashOut: 1874 },
+            { id: 1751460845960, date: "2025-07-02T12:54:05.960Z", description: "Fruits and vegetables", cashIn: 0, cashOut: 123 },
+            { id: 1751435413186, date: "2025-07-02T05:50:13.186Z", description: "Petrol", cashIn: 0, cashOut: 449 },
+            { id: 1751421777499, date: "2025-07-02T02:02:57.499Z", description: "Village bank EMI", cashIn: 0, cashOut: 3000 },
+            { id: 1751421620503, date: "2025-07-02T02:00:20.503Z", description: "Kotak bank loan emi", cashIn: 0, cashOut: 7372 },
+            { id: 1751377105853, date: "2025-07-01T13:38:25.853Z", description: "Salary", cashIn: 30000, cashOut: 0 },
+            { id: 1751342683630, date: "2025-07-01T04:04:43.630Z", description: "Medicine kit", cashIn: 0, cashOut: 50 },
+            { id: 1751305386864, date: "2025-06-30T17:43:06.864Z", description: "Money received from GS", cashIn: 4682, cashOut: 0 },
+            { id: 1751300890660, date: "2025-06-30T16:28:10.660Z", description: "Fruits", cashIn: 0, cashOut: 50 },
+            { id: 1751297583721, date: "2025-06-30T15:33:03.721Z", description: "Medicine", cashIn: 0, cashOut: 60 },
+            { id: 1751291953450, date: "2025-06-30T13:59:13.450Z", description: "Hospital", cashIn: 0, cashOut: 350 },
+            { id: 1751285139584, date: "2025-06-30T12:05:39.584Z", description: "Grocery , dundakaya, gudomakaya", cashIn: 0, cashOut: 50 },
+            { id: 1751285101029, date: "2025-06-30T12:05:01.029Z", description: "Grocery, vankaya", cashIn: 0, cashOut: 30 },
+            { id: 1751285069960, date: "2025-06-30T12:04:29.960Z", description: "Lemon", cashIn: 0, cashOut: 20 },
+            { id: 1751285060711, date: "2025-06-30T12:04:20.711Z", description: "Grocery , kotimir katta", cashIn: 0, cashOut: 10 },
+            { id: 1751285038403, date: "2025-06-30T12:03:58.403Z", description: "Grocery tomoto, carrot, battleground, surakaya", cashIn: 0, cashOut: 105 },
+            { id: 1751198233066, date: "2025-06-29T11:57:13.066Z", description: "Jilebi sweet food", cashIn: 0, cashOut: 50 },
+            { id: 1751198223859, date: "2025-06-29T11:57:03.859Z", description: "Pani pori food", cashIn: 0, cashOut: 50 },
+            { id: 1751193992530, date: "2025-06-29T10:46:32.530Z", description: "Water cane", cashIn: 0, cashOut: 15 },
+            { id: 1751121014271, date: "2025-06-28T14:30:14.271Z", description: "Dal and chick fry ,(food) food", cashIn: 0, cashOut: 80 },
+            { id: 5, date: "2025-06-27T11:13:30.302Z", description: "Mango buy fruit( food )", cashIn: 0, cashOut: 80 },
+            { id: 4, date: "2025-06-26T12:10:33.851Z", description: "Veg Manchurian food", cashIn: 0, cashOut: 60 },
+            { id: 2, date: "2025-06-25T12:08:38.281Z", description: "Bike repair 50", cashIn: 0, cashOut: 50 }
+        ];
+
+        const converted = data.map(entry => {
+            const type = entry.cashIn > 0 ? 'in' : 'out';
+            const amount = type === 'in' ? entry.cashIn : entry.cashOut;
+            const dateObj = new Date(entry.date);
+            const formattedDate = dateObj.toLocaleString('en-GB', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(',', '');
+
+            return {
+                id: entry.id,
+                amount,
+                desc: entry.description,
+                type,
+                date: formattedDate
+            };
+        });
+
+        const json = JSON.stringify(converted);
+        const encoded = btoa(encodeURIComponent(json));
+        const redirectUrl = `https://mosin11.github.io/moneytrackr/?import=${encoded}`;
+
+        // Redirect after 1.5s
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+            const data = JSON.parse(localStorage.getItem("transactionsList") || "[]");
+            alert(data);
+        }, 1500);
+    </script>
+</body>
+
+</html>

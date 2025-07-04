@@ -1,4 +1,4 @@
-const keywordToCategory = {
+export const keywordToCategory = {
     // Food & Dining
     food: 'Food',
     restaurant: 'Food',
@@ -109,5 +109,14 @@ const keywordToCategory = {
     service: 'Others',
 
 };
+export const cashInKeywords = [
+    'salary', 'income', 'received', 'credited', 'deposit',
+    'refund', 'bonus', 'interest', 'pay', 'transfer from'
+];
 
-export default keywordToCategory;
+export const cashOutKeywords = [
+    'send', 'paid', 'pay', 'transferred', 'spent', 'gave', 'purchase', 'buy', 'order'
+];
+
+
+

@@ -1,42 +1,61 @@
-// TransactionManager.js
 import { useState, useEffect } from 'react';
+import stringSimilarity from 'string-similarity';
+import { keywordToCategory, cashInKeywords, cashOutKeywords } from '../utils/categoryMapper'; // Adjust if in a different file
 
 export default function useTransactions() {
     const [transactions, setTransactions] = useState(() => {
         const saved = localStorage.getItem('transactionsList');
         return saved ? JSON.parse(saved) : [];
     });
+
     const [editId, setEditId] = useState(null);
-    const [formType, setFormType] = useState(null);
-    const [description, setDescription] = useState('');
-    const [cashIn, setCashIn] = useState('');
-    const [cashOut, setCashOut] = useState('');
+    const [desc, setDesc] = useState('');
+    const [amount, setAmount] = useState('');
     const [editTxn, setEditTxn] = useState(null);
 
-
+    // Load once on mount
     useEffect(() => {
         const saved = localStorage.getItem('transactionsList');
         if (saved) setTransactions(JSON.parse(saved));
     }, []);
 
+    // Save to localStorage on change
     useEffect(() => {
         localStorage.setItem('transactionsList', JSON.stringify(transactions));
     }, [transactions]);
 
+    const detectType = (desc = '') => {
+        const words = desc.toLowerCase().split(/\s+/);
+
+        for (let word of words) {
+            const match = stringSimilarity.findBestMatch(word, cashInKeywords);
+            if (match.bestMatch.rating > 0.5) return 'in';
+        }
+
+        // Then check for cash out
+        for (let word of words) {
+            const match = stringSimilarity.findBestMatch(word, cashOutKeywords);
+            if (match.bestMatch.rating > 0.5) return 'out';
+        }
+
+        return 'out'; // Default fallback
+    };
+
+    const detectCategory = (desc) => {
+        const lowerDesc = desc.toLowerCase();
+        const keyword = Object.keys(keywordToCategory).find(k => lowerDesc.includes(k));
+        return keyword ? keywordToCategory[keyword] : 'Uncategorized';
+    };
+
     const startEdit = (txn) => {
-        setFormType(txn.cashIn > 0 ? 'cashIn' : 'cashOut');
-        setDescription(txn.description);
-        setCashIn(txn.cashIn || '');
-        setCashOut(txn.cashOut || '');
-        setEditId(txn.id);
+        setEditTxn(txn);
     };
 
     const cancelEdit = () => {
-        setFormType(null);
-        setDescription('');
-        setCashIn('');
-        setCashOut('');
+        setDesc('');
+        setAmount('');
         setEditId(null);
+        setEditTxn(null)
     };
 
     const deleteTransaction = (id) => {
@@ -46,19 +65,15 @@ export default function useTransactions() {
     };
 
     const submitTransaction = () => {
-        const cashInValue = parseFloat(cashIn);
-        const cashOutValue = parseFloat(cashOut);
+        const amt = parseFloat(amount);
         const now = new Date();
 
-        if (!description.trim()) {
+        if (!desc.trim()) {
             alert('Please enter a description');
             return;
         }
 
-        if (
-            (formType === 'cashIn' && (isNaN(cashInValue) || cashInValue <= 0)) ||
-            (formType === 'cashOut' && (isNaN(cashOutValue) || cashOutValue <= 0))
-        ) {
+        if (isNaN(amt) || amt <= 0) {
             alert('Please enter a valid amount');
             return;
         }
@@ -66,9 +81,10 @@ export default function useTransactions() {
         const newTxn = {
             id: editId || Date.now(),
             date: editId ? transactions.find(t => t.id === editId).date : now,
-            description: description.trim(),
-            cashIn: formType === 'cashIn' ? cashInValue : 0,
-            cashOut: formType === 'cashOut' ? cashOutValue : 0,
+            desc: desc.trim(),
+            amount: amt,
+            type: detectType(desc),
+            category: detectCategory(desc)
         };
 
         if (editId) {
@@ -83,21 +99,16 @@ export default function useTransactions() {
     return {
         transactions,
         setTransactions,
-        formType,
-        description,
-        cashIn,
-        cashOut,
+        desc,
+        amount,
+        setDesc,
+        setAmount,
         editId,
-        setFormType,
-        setDescription,
-        setCashIn,
-        setCashOut,
         startEdit,
         cancelEdit,
-        deleteTransaction,
-        submitTransaction,
         editTxn,
-        setEditTxn
-
+        setEditTxn,
+        deleteTransaction,
+        submitTransaction
     };
 }

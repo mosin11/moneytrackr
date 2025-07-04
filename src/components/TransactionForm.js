@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { cashInKeywords, cashOutKeywords } from '../utils/categoryMapper';
+import stringSimilarity from 'string-similarity';
+import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
 
 function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdit }) {
     const [amount, setAmount] = useState('');
     const [desc, setDesc] = useState('');
-    const [type, setType] = useState('in');
+
 
     useEffect(() => {
         if (editTxn) {
             setAmount(editTxn.amount);
             setDesc(editTxn.desc);
-            setType(editTxn.type);
+
         } else {
-            // When cancelling
             setAmount('');
             setDesc('');
-            setType('in');
+
         }
     }, [editTxn]);
 
@@ -28,15 +30,39 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
         return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
     }
 
+    function inferType(description = '') {
+        const words = description.toLowerCase().split(/\s+/);
+
+        // Then check for cash out
+        for (let word of words) {
+            const match = stringSimilarity.findBestMatch(word, cashOutKeywords);
+            if (match.bestMatch.rating > 0.6) return 'out';
+        }
+        // First check for cash in
+        for (let word of words) {
+            const match = stringSimilarity.findBestMatch(word, cashInKeywords);
+            if (match.bestMatch.rating > 0.6) return 'in';
+        }
+
+
+
+        return 'out'; // Default fallback
+    }
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!amount || !desc) return;
 
+        const detectedType = inferType(desc);
+        const category = getCategoryFromDescription(desc);
+
         const txn = {
             id: editTxn ? editTxn.id : Date.now(),
             amount: parseFloat(amount),
-            desc,
-            type,
+            desc: desc.trim(),
+            type: detectedType,
+            category: category.category,
             date: formatDate(new Date())
         };
 
@@ -48,24 +74,33 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
 
         setAmount('');
         setDesc('');
-        setType('in');
+
     };
 
     return (
         <form className="mb-4" onSubmit={handleSubmit}>
             <div className="row g-2">
                 <div className="col-md-4">
-                    <input type="text" className="form-control" placeholder="Description" value={desc} onChange={e => setDesc(e.target.value)} />
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Description"
+                        value={desc}
+                        onChange={e => setDesc(e.target.value)}
+                    />
                 </div>
                 <div className="col-md-3">
-                    <input type="number" className="form-control" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
+                    <input
+                        type="number"
+                        className="form-control"
+                        placeholder="Amount"
+                        value={amount}
+                        onChange={e => setAmount(e.target.value)}
+                    />
                 </div>
-                <div className="col-md-3">
-                    <select className="form-select" value={type} onChange={e => setType(e.target.value)}>
-                        <option value="in">Cash In</option>
-                        <option value="out">Cash Out</option>
-                    </select>
-                </div>
+
+
+
                 <div className="col-md-2 d-flex">
                     <button className="btn btn-primary me-2 w-100" type="submit">
                         {editTxn ? 'Update' : 'Add'}

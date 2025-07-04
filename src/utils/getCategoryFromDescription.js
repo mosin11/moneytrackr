@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js';
-import keywordToCategory from './categoryMapper';
+import { keywordToCategory } from './categoryMapper';
 
 const keywords = Object.keys(keywordToCategory).map(k => ({ keyword: k, category: keywordToCategory[k] }));
 
