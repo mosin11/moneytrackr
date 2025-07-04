@@ -14,6 +14,7 @@ import TabFilter from './components/TabFilter';
 import DateRangePicker from './components/DateRangePicker';
 import useTransactions from './components/TransactionManager';
 import logo from './assets/logo.png';
+import Swal from 'sweetalert2';
 
 
 function App() {
@@ -51,9 +52,21 @@ function App() {
     startEdit(null);
   };
   const deleteTransaction = (id) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      setTransactions(transactions.filter(t => t.id !== id));
-    }
+    Swal.fire({
+      title: 'Delete Transaction?',
+      text: 'Are you sure you want to delete this transaction?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTransactions(transactions.filter(t => t.id !== id));
+        Swal.fire('Deleted!', 'Transaction has been removed.', 'success');
+      }
+    });
   };
   const cancelEdit = () => {
 
