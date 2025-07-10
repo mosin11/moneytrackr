@@ -2,26 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import './index.css';
-import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+
 import {ThemeProvider} from './ThemeContext'
-import SeedTransactions from './components/SeedTransactions'
+import App from './App';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <ThemeProvider>
-    <HashRouter>
-      <Routes>
-        {/* Default redirect from / to /app */}
-        <Route path="/" element={<Navigate to="/app" />} />
-        <Route path="/seed" element={<SeedTransactions />} />
-        <Route path="/app" element={<App />} />
-       
-      </Routes>
-    </HashRouter>
+  <ThemeProvider> 
+       <App/>
   </ThemeProvider>
 );
 

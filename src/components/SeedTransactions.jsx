@@ -23,7 +23,7 @@ const SeedTransactions = () => {
         showConfirmButton: false,
       });
 
-      setTimeout(() => navigate('/app'), 2000);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -58,7 +58,7 @@ const SeedTransactions = () => {
         </button>
       </div>
 
-      <Link to="/app" className="btn btn-outline-success">
+      <Link to="/dashboard" className="btn btn-outline-success">
         🚀 Go to App
       </Link>
     </div>

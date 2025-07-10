@@ -36,3 +36,13 @@
     transform: rotate(360deg);
   }
 }
+.landing {
+  background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+  min-height: 100vh;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #007bff, #00bcd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
