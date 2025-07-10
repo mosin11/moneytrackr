@@ -1,7 +1,7 @@
 // src/config.js
 
-const API_BASE_URL = 'http://localhost:5000'; 
- //const API_BASE_URL = 'https://cashbook-backup-server.onrender.com'; // Use this in production 
+//const API_BASE_URL = 'http://localhost:5000'; 
+ const API_BASE_URL = 'https://cashbook-backup-server.onrender.com'; // Use this in production 
 
 const API_ENDPOINTS = {
   // 🔐 Auth APIs
