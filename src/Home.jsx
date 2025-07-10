@@ -7,6 +7,7 @@ import { exportToExcel } from "./utils/exportExcel";
 import { exportPDF } from "./utils/PdfExporter";
 import { Link } from "react-router-dom";
 
+
 // Components
 import Header from "./components/Header";
 import TransactionForm from "./components/TransactionForm";
@@ -16,6 +17,7 @@ import DateRangePicker from "./components/DateRangePicker";
 import useTransactions from "./components/useTransactions";
 import logo from "./assets/logo.png";
 import Swal from "sweetalert2";
+import { getAllTransactionsFromServer } from "./utils/apiTransactions";
 
 function Home() {
   const {
@@ -25,6 +27,7 @@ function Home() {
     startEdit,
     setTransactions,
   } = useTransactions();
+  const [isLoading, setIsLoading] = useState(true); // NEW
 
   const { darkMode, setDarkMode } = useContext(ThemeContext);
   const [email, setEmail] = useState("");
@@ -36,17 +39,36 @@ function Home() {
 
   
 
-  useEffect(() => {
-    const userName = sessionStorage.getItem("userName");
   
-    if (userName) {
-      setUserName(userName);
-    }
-  }, []);
 
   useEffect(() => {
-    localStorage.setItem("transactionsList", JSON.stringify(transactions));
-  }, [transactions]);
+  const userName = sessionStorage.getItem("userName");
+  if (userName) setUserName(userName);
+
+  const list = localStorage.getItem("transactionsList");
+  const hasLocalData = list && list !== "[]";
+  if (hasLocalData) {
+    const localTxns = JSON.parse(hasLocalData);
+
+    // Simulate server sync (compare later if needed)
+    getAllTransactionsFromServer(userName).then((serverTxns) => {
+      debugger
+      const areEqual = JSON.stringify(localTxns) === JSON.stringify(serverTxns);
+
+      if (!areEqual) {
+        setTransactions(serverTxns);
+        localStorage.setItem("transactionsList", JSON.stringify(serverTxns));
+      } else {
+        setTransactions(localTxns);
+      }
+
+      setIsLoading(false); // ✅ Stop loading
+    });
+  } else {
+    setIsLoading(false); // No data, still show UI
+  }
+}, []);
+
 
   const addTransaction = (txn) => {
     setTransactions([txn, ...transactions]);
@@ -216,6 +238,15 @@ function Home() {
     }
   };
 
+  if (isLoading) {
+  return (
+    <div className="d-flex justify-content-center align-items-center vh-100">
+      <div className="spinner-border text-primary" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  );
+}
   return (
     <>
       {/* Navbar */}

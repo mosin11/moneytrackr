@@ -28,23 +28,38 @@ export default function useTransactions() {
   // 🔃 Load transactions from server (or fallback)
   useEffect(() => {
     async function fetchTransactions() {
-    
+
       if (!email) {
         Swal.fire('Login Required', 'Please log in to view transactions.', 'warning');
         return;
       }
 
       try {
-        debugger
-        const list = localStorage.getItem('transactionsList');
-        if(!list){
-        const txns = await getAllTransactionsFromServer(email);
-        setTransactions(txns);
-        localStorage.setItem('transactionsList', JSON.stringify(txns));
-        }else {
-            setTransactions(JSON.parse(list));
+        debugger;
+        const list = localStorage.getItem("transactionsList");
+        const hasLocalData = list && list !== "[]";
+
+        if (hasLocalData) {
+          const localTxns = JSON.parse(list);
+
+          // Fetch from server and compare
+          const serverTxns = await getAllTransactionsFromServer(email);
+
+          const areEqual = JSON.stringify(localTxns) === JSON.stringify(serverTxns);
+
+          if (!areEqual) {
+            setTransactions(serverTxns);
+            localStorage.setItem("transactionsList", JSON.stringify(serverTxns));
+          } else {
+            setTransactions(localTxns);
+          }
+        } else {
+          // No local data or it's empty → fetch fresh
+          const serverTxns = await getAllTransactionsFromServer(email);
+          setTransactions(serverTxns);
+          localStorage.setItem("transactionsList", JSON.stringify(serverTxns));
         }
-        
+
       } catch (err) {
         Swal.fire('Error', 'Failed to fetch transactions from server. Loading local data.', 'error');
         const saved = localStorage.getItem('transactionsList');
