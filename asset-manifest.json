@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/moneytrackr/static/css/main.f53b8874.css",
-    "main.js": "/moneytrackr/static/js/main.cfbff0be.js",
+    "main.js": "/moneytrackr/static/js/main.1d4d39e0.js",
     "static/js/453.59b82994.chunk.js": "/moneytrackr/static/js/453.59b82994.chunk.js",
     "static/js/239.debcdc26.chunk.js": "/moneytrackr/static/js/239.debcdc26.chunk.js",
     "static/js/977.c7f4cb77.chunk.js": "/moneytrackr/static/js/977.c7f4cb77.chunk.js",
@@ -10,7 +10,7 @@
     "service-worker.js": "/moneytrackr/service-worker.js",
     "index.html": "/moneytrackr/index.html",
     "main.f53b8874.css.map": "/moneytrackr/static/css/main.f53b8874.css.map",
-    "main.cfbff0be.js.map": "/moneytrackr/static/js/main.cfbff0be.js.map",
+    "main.1d4d39e0.js.map": "/moneytrackr/static/js/main.1d4d39e0.js.map",
     "453.59b82994.chunk.js.map": "/moneytrackr/static/js/453.59b82994.chunk.js.map",
     "239.debcdc26.chunk.js.map": "/moneytrackr/static/js/239.debcdc26.chunk.js.map",
     "977.c7f4cb77.chunk.js.map": "/moneytrackr/static/js/977.c7f4cb77.chunk.js.map",
@@ -18,6 +18,6 @@
   },
   "entrypoints": [
     "static/css/main.f53b8874.css",
-    "static/js/main.cfbff0be.js"
+    "static/js/main.1d4d39e0.js"
   ]
 }
