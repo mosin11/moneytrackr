@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import AuthHeader from './AuthHeader';
 import API_ENDPOINTS from '../config';
+import Swal from 'sweetalert2';
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
@@ -29,7 +30,11 @@ export default function RegisterPage() {
       });
       setStep(2);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error sending OTP');
+        Swal.fire({
+                  icon: 'error',
+                  title: 'Error sending OTP',
+                  text: err.response?.data?.message || 'Login failed',
+                    });
     }
   };
 
@@ -39,10 +44,19 @@ export default function RegisterPage() {
         email: formData.email,
         otp: formData.otp
       });
-      alert('Registration successful');
+
+      Swal.fire({
+                  icon: 'success',
+                  title: 'Registration successful',
+                  text: 'Registration successful',
+                    });
       navigate('/login');
     } catch (err) {
-      alert(err.response?.data?.message || 'Verification failed');
+      Swal.fire({
+        icon: 'error',
+        title: 'Verification failed',
+        text: err.response?.data?.message || 'Verification failed',
+        });
     }
   };
 

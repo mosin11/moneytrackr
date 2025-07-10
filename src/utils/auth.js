@@ -14,6 +14,11 @@ export const clearToken = () => {
   localStorage.removeItem('userEmail');
 };
 
+export const clearAuth = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userEmail');
+};
+
 // Check if logged in
 export const isLoggedIn = () => {
   return !!getToken();

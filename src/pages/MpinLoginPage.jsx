@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { saveToken, getEmail } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
@@ -6,20 +6,39 @@ import AuthHeader from './AuthHeader';
 import API_ENDPOINTS from '../config';
 
 export default function MpinLoginPage() {
-  const [mpin, setMpin] = useState('');
+  const [mpinArray, setMpinArray] = useState(['', '', '', '']);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const URL = API_ENDPOINTS;
   const email = getEmail();
 
+  const refs = [useRef(), useRef(), useRef(), useRef()];
+
   useEffect(() => {
     if (!email) {
-      navigate('/login'); // Fallback to login if no email is saved
+      navigate('/login'); // fallback if no email is saved
     }
   }, [email, navigate]);
 
+  const handleClear = () => {
+  setMpinArray(['', '', '', '']);
+  setError('');
+};
+
+  const handleInput = (e, index) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 1);
+    const updated = [...mpinArray];
+    updated[index] = value;
+    setMpinArray(updated);
+
+    if (value && index < 3) {
+      refs[index + 1].current.focus();
+    }
+  };
+
   const handleLogin = async () => {
     setError('');
+    const mpin = mpinArray.join('');
 
     if (mpin.length !== 4) {
       setError('MPIN must be exactly 4 digits');
@@ -29,36 +48,51 @@ export default function MpinLoginPage() {
     try {
       const res = await axios.post(URL.VERIFY_MPIN, { email, mpin });
       saveToken(res.data.token);
+   
+      sessionStorage.setItem('userName',res.data.userName);
       navigate('/app');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }
   };
 
-  const handleMpinInput = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4); // numeric only
-    setMpin(value);
-  };
-
   return (
     <>
       <AuthHeader title="Enter MPIN" />
-      <div className="container mt-5" style={{ maxWidth: 400 }}>
-        <div className="mb-3 text-center text-muted">
+      <div className="container mt-5 text-center" style={{ maxWidth: 400 }}>
+        <div className="mb-3 text-muted">
           Logging in as <strong>{email}</strong>
         </div>
-        <input
-          type="password"
-          maxLength={4}
-          className="form-control mb-2"
-          placeholder="Enter 4-digit MPIN"
-          value={mpin}
-          onChange={handleMpinInput}
-        />
+
+        <div className="d-flex justify-content-center mb-3">
+          {mpinArray.map((val, index) => (
+            <input
+              key={index}
+              type="password"
+              inputMode="numeric"
+              maxLength={1}
+              value={val}
+              ref={refs[index]}
+              onChange={(e) => handleInput(e, index)}
+              className="form-control text-center"
+              style={{
+                width: 50,
+                height: 50,
+                fontSize: 22,
+                marginRight: 10,
+                display: 'inline-block'
+              }}
+            />
+          ))}
+        </div>
+
         {error && <div className="alert alert-danger py-1">{error}</div>}
         <button className="btn btn-primary w-100" onClick={handleLogin}>
-          Proceed
-          </button>
+          Continue
+        </button>
+        <button className="btn btn-secondary w-100 mt-2" onClick={handleClear}>
+        Clear
+        </button>
       </div>
     </>
   );

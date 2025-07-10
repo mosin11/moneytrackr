@@ -1,41 +1,65 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { saveToken } from '../utils/auth';
-import { useNavigate, Link } from 'react-router-dom';
-import AuthHeader from './AuthHeader';
-import API_ENDPOINTS from '../config'
+import React, { useState } from "react";
+import axios from "axios";
+import { saveToken } from "../utils/auth";
+import { useNavigate, Link } from "react-router-dom";
+import AuthHeader from "./AuthHeader";
+import API_ENDPOINTS from "../config";
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const URL = API_ENDPOINTS;
   const sendOtp = async () => {
-    if (!email) return alert('Please enter your email');
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address!",
+      });
+      return;
+    }
+
     try {
       await axios.post(URL.LOGIN_SEND_OTP, { email });
       setStep(2);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to send OTP');
+      Swal.fire({
+        icon: "error",
+        title: "Failed to send OTP",
+        text: err.response?.data?.message || "Failed to send OTP",
+      });
     }
   };
 
   const verifyLogin = async () => {
-    if (!otp) return alert('Enter the OTP sent to your email');
+    if (!otp) {
+      Swal.fire({
+        icon: "error",
+        title: "Enter the OTP sent to your email",
+        text: "Enter the OTP sent to your email",
+      });
+      return;
+    }
     try {
       const res = await axios.post(URL.LOGIN_VERIFY_OTP, { email, otp });
       saveToken(res.data.token);
-      localStorage.setItem('userEmail', email);
-      navigate('/setmpin');
+      localStorage.setItem("userEmail", email);
+      navigate("/setmpin");
     } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
+      Swal.fire({
+        icon: "error",
+        title: "Login failed",
+        text: err.response?.data?.message || "Login failed",
+      });
     }
   };
 
   const clearForm = () => {
-    setEmail('');
-    setOtp('');
+    setEmail("");
+    setOtp("");
     setStep(1);
   };
 
@@ -43,7 +67,7 @@ export default function LoginPage() {
     <>
       <AuthHeader title="Sign In to MoneyTrackr" />
 
-      <div className="container mt-4" style={{ maxWidth: '400px' }}>
+      <div className="container mt-4" style={{ maxWidth: "400px" }}>
         <h4 className="mb-3 text-center">Login</h4>
 
         {step === 1 ? (
@@ -53,8 +77,8 @@ export default function LoginPage() {
                 type="email"
                 className="form-control"
                 placeholder="Enter your email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                value={email ?? ''}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <button className="btn btn-primary w-100 mb-2" onClick={sendOtp}>
@@ -68,10 +92,13 @@ export default function LoginPage() {
                 className="form-control"
                 placeholder="Enter OTP"
                 value={otp}
-                onChange={e => setOtp(e.target.value)}
+                onChange={(e) => setOtp(e.target.value)}
               />
             </div>
-            <button className="btn btn-success w-100 mb-2" onClick={verifyLogin}>
+            <button
+              className="btn btn-success w-100 mb-2"
+              onClick={verifyLogin}
+            >
               Verify & Login
             </button>
           </>

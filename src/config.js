@@ -1,7 +1,7 @@
 // src/config.js
 
-//const API_BASE_URL = 'http://localhost:5000'; 
- const API_BASE_URL = 'https://cashbook-backup-server.onrender.com'; // Use this in production 
+const API_BASE_URL = 'http://localhost:5000'; 
+ //const API_BASE_URL = 'https://cashbook-backup-server.onrender.com'; // Use this in production 
 
 const API_ENDPOINTS = {
   // 🔐 Auth APIs
@@ -19,8 +19,9 @@ const API_ENDPOINTS = {
   // 💸 Transactions
   ADD_TRANSACTION: `${API_BASE_URL}/api/transactions/add`,
   GET_ALL_TRANSACTIONS: `${API_BASE_URL}/api/transactions/getAllTransaction`,
-  DELETE_TRANSACTION: (id) => `${API_BASE_URL}/api/transactions/delete/${id}`, // optional
-  UPDATE_TRANSACTION: (id) => `${API_BASE_URL}/api/transactions/update/${id}`, // optional
+  DELETE_TRANSACTION: `${API_BASE_URL}/api/transactions/delete`, // Now POST, not dynamic
+  UPDATE_TRANSACTION: `${API_BASE_URL}/api/transactions/update`,
+ // optional
 
   // 📤 Data Export/Import (future)
   EXPORT: `${API_BASE_URL}/api/export`,

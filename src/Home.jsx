@@ -1,96 +1,82 @@
-import React, { useState, useEffect, useContext } from 'react';
-import 'react-datepicker/dist/react-datepicker.css';
-import './App.css';
-import { ThemeContext } from './ThemeContext';
-import API_ENDPOINTS from './config';
-import { exportToExcel } from './utils/exportExcel';
-import { exportPDF } from './utils/PdfExporter';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from "react";
+import "react-datepicker/dist/react-datepicker.css";
+import "./App.css";
+import { ThemeContext } from "./ThemeContext";
+import API_ENDPOINTS from "./config";
+import { exportToExcel } from "./utils/exportExcel";
+import { exportPDF } from "./utils/PdfExporter";
+import { Link } from "react-router-dom";
 
 // Components
-import Header from './components/Header';
-import TransactionForm from './components/TransactionForm';
-import TransactionList from './components/TransactionList';
-import TabFilter from './components/TabFilter';
-import DateRangePicker from './components/DateRangePicker';
-import useTransactions from './components/TransactionManager';
-import logo from './assets/logo.png';
-import Swal from 'sweetalert2';
-
+import Header from "./components/Header";
+import TransactionForm from "./components/TransactionForm";
+import TransactionList from "./components/TransactionList";
+import TabFilter from "./components/TabFilter";
+import DateRangePicker from "./components/DateRangePicker";
+import useTransactions from "./components/useTransactions";
+import logo from "./assets/logo.png";
+import Swal from "sweetalert2";
 
 function Home() {
   const {
     transactions,
     editTxn,
+    deleteTransaction,
     startEdit,
-    setTransactions
-
+    setTransactions,
   } = useTransactions();
 
   const { darkMode, setDarkMode } = useContext(ThemeContext);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [showEmailInput, setShowEmailInput] = useState(false);
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-  const [activeTab, setActiveTab] = useState('Daily');
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [userName, setUserName] = useState("");
+  const [activeTab, setActiveTab] = useState("Daily");
+
+  
 
   useEffect(() => {
-    const data = localStorage.getItem('transactionsList');
-    if (data) setTransactions(JSON.parse(data));
+    const userName = sessionStorage.getItem("userName");
+  
+    if (userName) {
+      setUserName(userName);
+    }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('transactionsList', JSON.stringify(transactions));
+    localStorage.setItem("transactionsList", JSON.stringify(transactions));
   }, [transactions]);
 
   const addTransaction = (txn) => {
-
     setTransactions([txn, ...transactions]);
   };
   const updateTransaction = (updatedTxn) => {
-
-    setTransactions(transactions.map(t => (t.id === updatedTxn.id ? updatedTxn : t)));
+    setTransactions(
+      transactions.map((t) => (t.id === updatedTxn.id ? updatedTxn : t))
+    );
     startEdit(null);
   };
-  const deleteTransaction = (id) => {
-    Swal.fire({
-      title: 'Delete Transaction?',
-      text: 'Are you sure you want to delete this transaction?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setTransactions(transactions.filter(t => t.id !== id));
-        Swal.fire('Deleted!', 'Transaction has been removed.', 'success');
-      }
-    });
-  };
-  const cancelEdit = () => {
 
+  const cancelEdit = () => {
     startEdit(null);
   };
 
   const formatDate = (d) => {
-
     const date = new Date(d);
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
     const yyyy = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, '0');
-    const min = String(date.getMinutes()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
     return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
   };
-
-
+  
   const downloadExcel = (from, to) => {
     let exportData = [];
 
     const parseDate = (str) => {
-      const [dd, mm, yyyy] = str.split('-');
+      const [dd, mm, yyyy] = str.split("-");
       return new Date(`${yyyy}-${mm}-${dd}`);
     };
 
@@ -108,25 +94,25 @@ function Home() {
       const currentMonth = now.getMonth();
 
       exportData = transactions.filter((t) => {
-
         const date = parseCustomDate(t.date);
-        return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+        return (
+          date.getFullYear() === currentYear && date.getMonth() === currentMonth
+        );
       });
     }
 
     const data = exportData.map((t) => ({
       date: formatDate(new Date(parseCustomDate(t.date))),
-      description: t.desc,
-      'cashIn': t.type === 'in' ? t.amount : '',
-      'cashOut': t.type === 'out' ? t.amount : '',
+      description: t.description || t.desc,
+      cashIn: t.type === "in" ? t.amount : "",
+      cashOut: t.type === "out" ? t.amount : "",
     }));
 
-    setFromDate('');
-    setToDate('');
+    setFromDate("");
+    setToDate("");
 
     return data;
   };
-
 
   const getWeekNumber = (d) => {
     const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -140,12 +126,16 @@ function Home() {
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
-  function parseCustomDate(dateStr) {
-    const [datePart, timePart] = dateStr.split(' ');
-    const [dd, mm, yyyy] = datePart.split('-').map(Number);
-    const [HH, MM] = timePart ? timePart.split(':').map(Number) : [0, 0];
-    return new Date(yyyy, mm - 1, dd, HH, MM);
-  }
+ function parseCustomDate(dateStr) {
+  if (!dateStr) return new Date();
+  if (dateStr.includes("T")) return new Date(dateStr); // ISO case
+
+  const [datePart, timePart] = dateStr.split(" ");
+  const [dd, mm, yyyy] = datePart.split("-").map(Number);
+  const [HH, MM] = timePart ? timePart.split(":").map(Number) : [0, 0];
+  return new Date(yyyy, mm - 1, dd, HH, MM);
+}
+
 
   const filteredTransactions = transactions.filter((t) => {
     const txDate = parseCustomDate(t.date); // custom parser
@@ -156,20 +146,20 @@ function Home() {
     const txWeek = getWeekNumber(txDate);
 
     switch (activeTab) {
-      case 'Daily':
+      case "Daily":
         return (
           txDate.getDate() === today.getDate() &&
           txDate.getMonth() === today.getMonth() &&
           txDate.getFullYear() === today.getFullYear()
         );
-      case 'Weekly':
+      case "Weekly":
         return txDate.getFullYear() === currentYear && txWeek === currentWeek;
-      case 'Monthly':
+      case "Monthly":
         return (
           txDate.getFullYear() === currentYear &&
           txDate.getMonth() === currentMonth
         );
-      case 'LastMonth':
+      case "LastMonth":
         return txDate >= lastMonthStart && txDate <= lastMonthEnd;
       default:
         return true;
@@ -177,30 +167,27 @@ function Home() {
   });
 
   const handleEdit = (txn) => {
-
     startEdit(txn);
   };
   const sendBackup = async () => {
-
-    if (!email || !email.includes('@')) {
-
+    if (!email || !email.includes("@")) {
       Swal.fire({
-        icon: 'error',
-        title: 'Please enter a valid email address',
-        text: 'Please enter a valid email address',
+        icon: "error",
+        title: "Please enter a valid email address",
+        text: "Please enter a valid email address",
       });
       return;
     }
 
     try {
       const doc = await exportPDF(transactions, { download: false });
-      const pdfBlob = doc.output('blob');
+      const pdfBlob = doc.output("blob");
       const formData = new FormData();
-      formData.append('email', email);
-      formData.append('backupData', JSON.stringify(transactions));
-      formData.append('pdf', pdfBlob, 'Cashbook_Report.pdf');
+      formData.append("email", email);
+      formData.append("backupData", JSON.stringify(transactions));
+      formData.append("pdf", pdfBlob, "Cashbook_Report.pdf");
       const response = await fetch(API_ENDPOINTS.BACKUP, {
-        method: 'POST',
+        method: "POST",
 
         body: formData,
       });
@@ -208,85 +195,160 @@ function Home() {
       const result = await response.json();
       if (response.ok) {
         Swal.fire({
-          icon: 'success',
-          title: '✅ Backup Sent!',
-          text: result.message || 'Backup sent successfully!',
+          icon: "success",
+          title: "✅ Backup Sent!",
+          text: result.message || "Backup sent successfully!",
         });
         setShowEmailInput(false);
       } else {
-
         Swal.fire({
-          icon: 'error',
-          title: '❌ Backup Sent!',
-          text: result.message || 'Failed to send backup.',
+          icon: "error",
+          title: "❌ Backup Sent!",
+          text: result.message || "Failed to send backup.",
         });
       }
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: '❌ Error',
-        text: error.message || 'Something went wrong while sending the backup!',
+        icon: "error",
+        title: "❌ Error",
+        text: error.message || "Something went wrong while sending the backup!",
       });
-
     }
   };
 
   return (
     <>
       {/* Navbar */}
-      <nav className={`navbar ${darkMode ? 'navbar-dark bg-dark' : 'navbar-light bg-white'} border-bottom shadow-sm mb-4`}>
-        <div className="container-fluid">
-          <a className="navbar-brand mb-0 h1 d-flex align-items-center" href="/">
+      <nav
+        className={`navbar navbar-expand-lg ${
+          darkMode ? "navbar-dark" : "navbar-light"
+        } border-bottom shadow-sm mb-4`}
+        style={{
+          background: darkMode
+            ? "linear-gradient(to right, #232526, #414345)"
+            : "linear-gradient(to right, #f8f9fa, #e0e0e0)",
+        }}
+      >
+        <div className="container-fluid d-flex justify-content-between align-items-center">
+          {/* Left Logo + Brand */}
+          <a className="navbar-brand d-flex align-items-center" href="/">
             <img
               src={logo}
               alt="MoneyTrackr Logo"
               height="40"
               className="me-2"
             />
-            <span className="text-primary fw-bold d-none d-sm-block">MoneyTrackr</span>
+            <span
+              className={`fw-bold ${darkMode ? "text-white" : "text-dark"}`}
+            >
+              MoneyTrackr
+            </span>
           </a>
-          <Link
-  to="/seed"
-  className={`btn btn-sm ms-2 ${darkMode ? 'btn-outline-light' : 'btn-outline-dark'}`}
->
-  🔁 Seed Data
-</Link>
 
-          <button
-            className={`btn btn-sm ${darkMode ? 'btn-light' : 'btn-dark'}`}
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-          </button>
+          {/* Right actions */}
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            {/* Seed Button */}
+            <Link
+              to="/seed"
+              className={`btn btn-sm ${
+                darkMode ? "btn-outline-light" : "btn-outline-dark"
+              }`}
+            >
+              🔁 Seed Data
+            </Link>
+
+            {/* User Dropdown */}
+            <div className="dropdown">
+              <button
+                className={`btn btn-sm dropdown-toggle ${
+                  darkMode ? "btn-outline-light" : "btn-outline-dark"
+                }`}
+                type="button"
+                id="userDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                👤 {userName}
+              </button>
+              <ul
+                className={`dropdown-menu dropdown-menu-end ${
+                  darkMode ? "bg-dark text-light" : ""
+                }`}
+                aria-labelledby="userDropdown"
+              >
+                <li>
+                  <span className="dropdown-item-text">
+                    Signed in as <strong>{userName}</strong>
+                  </span>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item text-danger"
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.href = "/login";
+                    }}
+                  >
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Theme Toggle */}
+            <button
+              className={`btn btn-sm ${darkMode ? "btn-light" : "btn-dark"}`}
+              onClick={() => setDarkMode(!darkMode)}
+            >
+              {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* Main Content */}
       <div className="container px-3">
         <Header transactions={filteredTransactions} tabLabel={activeTab} />
-        <DateRangePicker fromDate={fromDate} toDate={toDate} setFromDate={setFromDate} setToDate={setToDate} />
+        <DateRangePicker
+          fromDate={fromDate}
+          toDate={toDate}
+          setFromDate={setFromDate}
+          setToDate={setToDate}
+        />
 
         {/* Action Buttons */}
 
         <div className="row g-2 mb-3">
-
           <div className="col-12 col-sm-4">
-            <button className="btn btn-success w-100"
+            <button
+              className="btn btn-success w-100"
               onClick={() => {
                 const data = downloadExcel(fromDate, toDate);
                 exportToExcel(data, fromDate, toDate);
               }}
-
-            >⬇️ Download Excel</button>
+            >
+              ⬇️ Download Excel
+            </button>
           </div>
           <div className="col-12 col-sm-4">
-            <button className="btn btn-danger w-100"
+            <button
+              className="btn btn-danger w-100"
               onClick={() => exportPDF(transactions, { download: true })}
-            >📄 Download PDF</button>
+            >
+              📄 Download PDF
+            </button>
           </div>
 
           <div className="col-12 col-sm-4">
-            <button className="btn btn-primary w-100" onClick={() => setShowEmailInput(!showEmailInput)}>📧 Send to Email</button>
+            <button
+              className="btn btn-primary w-100"
+              onClick={() => setShowEmailInput(!showEmailInput)}
+            >
+              📧 Send to Email
+            </button>
           </div>
         </div>
 
@@ -298,20 +360,26 @@ function Home() {
                 type="email"
                 className="form-control w-100"
                 placeholder="Enter email address"
-                value={email}
+                value={email??''}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ maxWidth: '300px' }}
+                style={{ maxWidth: "300px" }}
               />
             </div>
             <div className="col-12 col-sm-4">
-              <button className="btn btn-secondary w-100" onClick={sendBackup}>Send</button>
+              <button className="btn btn-secondary w-100" onClick={sendBackup}>
+                Send
+              </button>
             </div>
           </div>
         )}
 
         {/* Tabs and Date Picker */}
 
-        <TabFilter activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
+        <TabFilter
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          darkMode={darkMode}
+        />
 
         {/* Transactions */}
 

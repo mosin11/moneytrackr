@@ -14,7 +14,7 @@ export function exportToExcel(data, fromDate, toDate) {
     let totalOut = 0;
 
     data.forEach((t) => {
-        debugger;
+    
         const cashIn = t.cashIn;
         const cashOut = t.cashOut;
         totalIn += cashIn;

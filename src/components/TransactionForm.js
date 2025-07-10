@@ -1,18 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { cashInKeywords, cashOutKeywords } from '../utils/categoryMapper';
 import stringSimilarity from 'string-similarity';
 import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
 import Swal from 'sweetalert2';
+import { getEmail } from '../utils/auth';
+import { addTransactionToServer, updateTransactionOnServer } from '../utils/apiTransactions';
 
 function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdit }) {
     const [amount, setAmount] = useState('');
     const [desc, setDesc] = useState('');
-
+    const descInputRef = useRef(null);       // 👈 reference to input
+    const formRef = useRef(null);      
 
     useEffect(() => {
         if (editTxn) {
+            debugger
             setAmount(editTxn.amount);
-            setDesc(editTxn.desc);
+            setDesc(editTxn.desc || editTxn.description);
+             // Scroll and focus on edit
+        setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth' });
+        descInputRef.current?.focus();
+      }, 100); // delay to ensure DOM is rendered
 
         } else {
             setAmount('');
@@ -51,7 +60,7 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
     }
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!desc.trim()) {
@@ -76,24 +85,28 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
 
         const detectedType = inferType(desc);
         const category = getCategoryFromDescription(desc);
-
+        const email = getEmail();
         const txn = {
             id: editTxn ? editTxn.id : Date.now(),
             amount: parseFloat(amount),
             desc: desc.trim(),
             type: detectedType,
+            email: email,
             category: category.category,
             date: formatDate(new Date())
         };
 
         if (editTxn) {
+            
             updateTransaction(txn);
+            await updateTransactionOnServer(txn);
             Swal.fire({
                 icon: 'success',
                 title: 'Transaction Updated',
                 text: 'Transaction has been updated successfully!',
             });
         } else {
+            await addTransactionToServer(txn);
             addTransaction(txn);
             Swal.fire({
                 icon: 'success',
@@ -108,14 +121,15 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
     };
 
     return (
-        <form className="mb-4" onSubmit={handleSubmit}>
+        <form className="mb-4" ref={formRef} onSubmit={handleSubmit}>
             <div className="row g-2">
                 <div className="col-md-4">
                     <input
+                        ref={descInputRef}
                         type="text"
                         className="form-control"
                         placeholder="Description"
-                        value={desc}
+                        value={desc??''}
                         onChange={e => setDesc(e.target.value)}
                     />
                 </div>
@@ -124,7 +138,7 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
                         type="number"
                         className="form-control"
                         placeholder="Amount"
-                        value={amount}
+                        value={amount ?? ''}
                         onChange={e => setAmount(e.target.value)}
                     />
                 </div>
