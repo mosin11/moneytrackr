@@ -154,7 +154,7 @@ export default function useTransactions() {
     }
 
     const newTxn = {
-      id: editId || Date.now(),
+      id: editId || new Date().toISOString(),
       date: editId
         ? transactions.find((t) => t.id === editId)?.date || now
         : now,

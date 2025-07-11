@@ -30,16 +30,6 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
         }
     }, [editTxn]);
 
-    function formatDate(d) {
-        const date = new Date(d);
-        const dd = String(date.getDate()).padStart(2, '0');
-        const mm = String(date.getMonth() + 1).padStart(2, '0');
-        const yyyy = date.getFullYear();
-        const hh = String(date.getHours()).padStart(2, '0');
-        const min = String(date.getMinutes()).padStart(2, '0');
-        return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-    }
-
     function inferType(description = '') {
         const words = description.toLowerCase().split(/\s+/);
 
@@ -87,17 +77,17 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
         const category = getCategoryFromDescription(desc);
         const email = getEmail();
         const txn = {
-            id: editTxn ? editTxn.id : Date.now(),
+            id: editTxn ? editTxn.id :  Date.now(),
             amount: parseFloat(amount),
             desc: desc.trim(),
             type: detectedType,
             email: email,
             category: category.category,
-            date: formatDate(new Date())
+            date: editTxn? editTxn.data : new Date().toISOString()
         };
 
         if (editTxn) {
-            
+            debugger
             updateTransaction(txn);
             await updateTransactionOnServer(txn);
             Swal.fire({

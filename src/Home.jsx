@@ -84,15 +84,17 @@ function Home() {
     startEdit(null);
   };
 
-  const formatDate = (d) => {
-    const date = new Date(d);
-    const dd = String(date.getDate()).padStart(2, "0");
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const yyyy = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-  };
+function formatDate(d) {
+  const date = new Date(d);
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+}
+
+
   
   const downloadExcel = (from, to) => {
     let exportData = [];
@@ -225,14 +227,14 @@ function Home() {
       } else {
         Swal.fire({
           icon: "error",
-          title: "❌ Backup Sent!",
+          title: "Backup Sent!",
           text: result.message || "Failed to send backup.",
         });
       }
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "❌ Error",
+        title: "Error",
         text: error.message || "Something went wrong while sending the backup!",
       });
     }

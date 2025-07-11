@@ -4,14 +4,15 @@ function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
 
  
 function formatDateDisplay(d) {
-  const date = new Date(d); // ISO string
-  const dd = String(date.getUTCDate()).padStart(2, '0');
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const yyyy = date.getUTCFullYear();
-  const hh = String(date.getUTCHours()).padStart(2, '0');
-  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  const date = new Date(d); // ISO string or custom string
+  const dd = String(date.getDate()).padStart(2, '0');            // ✅ LOCAL day
+  const mm = String(date.getMonth() + 1).padStart(2, '0');       // ✅ LOCAL month
+  const yyyy = date.getFullYear();                               // ✅ LOCAL year
+  const hh = String(date.getHours()).padStart(2, '0');           // ✅ LOCAL hour
+  const min = String(date.getMinutes()).padStart(2, '0');        // ✅ LOCAL minute
   return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
 }
+
 
 
 
