@@ -2,9 +2,13 @@ import React from 'react';
 import CashFlowPieChart from './CashFlowPieChart';
 
 function Header({ transactions, tabLabel }) {
-    const income = transactions.filter(t => t.type === 'in').reduce((acc, t) => acc + t.amount, 0);
-    const expense = transactions.filter(t => t.type === 'out').reduce((acc, t) => acc + t.amount, 0);
-    const balance = income - expense;
+
+const income = transactions .filter(t => ['in', 'cash_in'].includes(t.type)).reduce((acc, t) => acc + t.amount, 0);
+const expense = transactions.filter(t => ['out', 'cash_out'].includes(t.type)).reduce((acc, t) => acc + t.amount, 0);
+
+const balance = income - expense;
+
+
 
     return (
         <div className="row">
