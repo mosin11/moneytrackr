@@ -87,12 +87,21 @@ function Home() {
 function formatDate(d) {
   const date = new Date(d);
   const dd = String(date.getDate()).padStart(2, '0');
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[date.getMonth()];
   const yyyy = date.getFullYear();
-  const hh = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+
+  let hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12; // convert 0 => 12
+
+  const hh = String(hours).padStart(2, '0');
+
+  return `${dd}-${month}-${yyyy} ${hh}:${minutes} ${ampm}`;
 }
+
 
 
   
@@ -162,7 +171,8 @@ function formatDate(d) {
 
 
   const filteredTransactions = transactions.filter((t) => {
-    const txDate = parseCustomDate(t.date); // custom parser
+    debugger
+    const txDate = new Date(t.id); // custom parser
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();

@@ -4,13 +4,15 @@ function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
 
  
 function formatDateDisplay(d) {
-  const date = new Date(d); // ISO string or custom string
-  const dd = String(date.getDate()).padStart(2, '0');            // ✅ LOCAL day
-  const mm = String(date.getMonth() + 1).padStart(2, '0');       // ✅ LOCAL month
-  const yyyy = date.getFullYear();                               // ✅ LOCAL year
-  const hh = String(date.getHours()).padStart(2, '0');           // ✅ LOCAL hour
-  const min = String(date.getMinutes()).padStart(2, '0');        // ✅ LOCAL minute
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
+  const date = new Date(d);
+  const dd = String(date.getDate()).padStart(2, '0');
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthName = monthNames[date.getMonth()];
+  const yyyy = date.getFullYear();
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  return `${dd}-${monthName}-${yyyy} ${hh}:${min}`;
 }
 
 
@@ -44,7 +46,7 @@ function formatDateDisplay(d) {
               {transactions.map((txn, index) => (
                 <tr key={txn.id}>
                   <td>{index + 1}</td>
-                  <td style={{ whiteSpace: 'normal' }}>{formatDateDisplay(txn.date)}</td>
+                  <td style={{ whiteSpace: 'normal' }}>{txn.date}</td>
                   <td style={{ whiteSpace: 'normal' }}>{txn.description || txn.desc}</td>
                 
                   <td className={['cash_in', 'in'].includes(txn.type) ? 'text-success' : 'text-danger'}>

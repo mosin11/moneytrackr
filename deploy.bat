@@ -4,7 +4,7 @@ echo === Adding all changes to Git ===
 git init
 git remote add origin https://github.com/mosin11/moneytrackr.git
 git add .
-git commit -m "user based auth added"
+git commit -m "date formart"
 echo === 🌿 Setting branch to '%BRANCH%' ===
 git branch -M %BRANCH%
 git branch -M main

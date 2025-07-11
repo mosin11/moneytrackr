@@ -59,7 +59,7 @@ export async function exportPDF(transactions, options = { download: true }) {
         txn.type === 'in' ? totalIn += amount : totalOut += amount;
         return [
              `${index + 1}`, 
-            formatDate(txn.date),
+            txn.date,
             txn.type === 'in' ? 'Cash In' : 'Cash Out',
             txn.desc || '',
             `INR ${amount}`
