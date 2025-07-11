@@ -7,7 +7,6 @@ import { exportToExcel } from "./utils/exportExcel";
 import { exportPDF } from "./utils/PdfExporter";
 import { Link } from "react-router-dom";
 
-
 // Components
 import Header from "./components/Header";
 import TransactionForm from "./components/TransactionForm";
@@ -37,38 +36,34 @@ function Home() {
   const [userName, setUserName] = useState("");
   const [activeTab, setActiveTab] = useState("Daily");
 
-  
-
-  
-
   useEffect(() => {
-  const userName = sessionStorage.getItem("userName");
-  if (userName) setUserName(userName);
+    const userName = sessionStorage.getItem("userName");
+    if (userName) setUserName(userName);
 
-  const list = localStorage.getItem("transactionsList");
-  const hasLocalData = list && list !== "[]";
-  if (hasLocalData) {
-    const localTxns = JSON.parse(hasLocalData);
+    const list = localStorage.getItem("transactionsList");
+    const hasLocalData = list && list !== "[]";
+    if (hasLocalData) {
+      const localTxns = JSON.parse(hasLocalData);
 
-    // Simulate server sync (compare later if needed)
-    getAllTransactionsFromServer(userName).then((serverTxns) => {
-      debugger
-      const areEqual = JSON.stringify(localTxns) === JSON.stringify(serverTxns);
+      // Simulate server sync (compare later if needed)
+      getAllTransactionsFromServer(userName).then((serverTxns) => {
+   
+        const areEqual =
+          JSON.stringify(localTxns) === JSON.stringify(serverTxns);
 
-      if (!areEqual) {
-        setTransactions(serverTxns);
-        localStorage.setItem("transactionsList", JSON.stringify(serverTxns));
-      } else {
-        setTransactions(localTxns);
-      }
+        if (!areEqual) {
+          setTransactions(serverTxns);
+          localStorage.setItem("transactionsList", JSON.stringify(serverTxns));
+        } else {
+          setTransactions(localTxns);
+        }
 
-      setIsLoading(false); // ✅ Stop loading
-    });
-  } else {
-    setIsLoading(false); // No data, still show UI
-  }
-}, []);
-
+        setIsLoading(false); // ✅ Stop loading
+      });
+    } else {
+      setIsLoading(false); // No data, still show UI
+    }
+  }, []);
 
   const addTransaction = (txn) => {
     setTransactions([txn, ...transactions]);
@@ -84,27 +79,36 @@ function Home() {
     startEdit(null);
   };
 
-function formatDate(d) {
-  const date = new Date(d);
-  const dd = String(date.getDate()).padStart(2, '0');
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const month = monthNames[date.getMonth()];
-  const yyyy = date.getFullYear();
+  function formatDate(d) {
+    const date = new Date(d);
+    const dd = String(date.getDate()).padStart(2, "0");
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[date.getMonth()];
+    const yyyy = date.getFullYear();
 
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12 || 12; // convert 0 => 12
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // convert 0 => 12
 
-  const hh = String(hours).padStart(2, '0');
+    const hh = String(hours).padStart(2, "0");
 
-  return `${dd}-${month}-${yyyy} ${hh}:${minutes} ${ampm}`;
-}
+    return `${dd}-${month}-${yyyy} ${hh}:${minutes} ${ampm}`;
+  }
 
-
-
-  
   const downloadExcel = (from, to) => {
     let exportData = [];
 
@@ -159,19 +163,18 @@ function formatDate(d) {
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
- function parseCustomDate(dateStr) {
-  if (!dateStr) return new Date();
-  if (dateStr.includes("T")) return new Date(dateStr); // ISO case
+  function parseCustomDate(dateStr) {
+    if (!dateStr) return new Date();
+    if (dateStr.includes("T")) return new Date(dateStr); // ISO case
 
-  const [datePart, timePart] = dateStr.split(" ");
-  const [dd, mm, yyyy] = datePart.split("-").map(Number);
-  const [HH, MM] = timePart ? timePart.split(":").map(Number) : [0, 0];
-  return new Date(yyyy, mm - 1, dd, HH, MM);
-}
-
+    const [datePart, timePart] = dateStr.split(" ");
+    const [dd, mm, yyyy] = datePart.split("-").map(Number);
+    const [HH, MM] = timePart ? timePart.split(":").map(Number) : [0, 0];
+    return new Date(yyyy, mm - 1, dd, HH, MM);
+  }
 
   const filteredTransactions = transactions.filter((t) => {
-    debugger
+    
     const txDate = new Date(t.id); // custom parser
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -204,6 +207,7 @@ function formatDate(d) {
     startEdit(txn);
   };
   const sendBackup = async () => {
+ 
     if (!email || !email.includes("@")) {
       Swal.fire({
         icon: "error",
@@ -220,7 +224,7 @@ function formatDate(d) {
       formData.append("email", email);
       formData.append("backupData", JSON.stringify(transactions));
       formData.append("pdf", pdfBlob, "Cashbook_Report.pdf");
-      const response = await fetch(API_ENDPOINTS.BACKUP, {
+      const response = await fetch(API_ENDPOINTS.BACKUP_SEND, {
         method: "POST",
 
         body: formData,
@@ -251,14 +255,14 @@ function formatDate(d) {
   };
 
   if (isLoading) {
-  return (
-    <div className="d-flex justify-content-center align-items-center vh-100">
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
   return (
     <>
       {/* Navbar */}
@@ -403,7 +407,7 @@ function formatDate(d) {
                 type="email"
                 className="form-control w-100"
                 placeholder="Enter email address"
-                value={email??''}
+                value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ maxWidth: "300px" }}
               />

@@ -35,7 +35,7 @@ export default function useTransactions() {
       }
 
       try {
-        debugger;
+        
         const list = localStorage.getItem("transactionsList");
         const hasLocalData = list && list !== "[]";
 

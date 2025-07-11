@@ -14,7 +14,7 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
 
     useEffect(() => {
         if (editTxn) {
-            debugger
+            
             setAmount(editTxn.amount);
             setDesc(editTxn.desc || editTxn.description);
              // Scroll and focus on edit
@@ -105,7 +105,7 @@ function TransactionForm({ addTransaction, editTxn, updateTransaction, cancelEdi
         };
 
         if (editTxn) {
-            debugger
+            
             updateTransaction(txn);
             await updateTransactionOnServer(txn);
             Swal.fire({
