@@ -17,6 +17,7 @@ import useTransactions from "./components/useTransactions";
 import logo from "./assets/logo.png";
 import Swal from "sweetalert2";
 import { getAllTransactionsFromServer } from "./utils/apiTransactions";
+import EditTransactionModal from "./components/EditTransactionModal";
 
 function Home() {
   const {
@@ -35,6 +36,14 @@ function Home() {
   const [toDate, setToDate] = useState("");
   const [userName, setUserName] = useState("");
   const [activeTab, setActiveTab] = useState("Daily");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTxn, setSelectedTxn] = useState(null);
+
+  const handleSave = (updatedTxn) => {
+    setTransactions((prev) =>
+      prev.map((t) => (t.id === updatedTxn.id ? updatedTxn : t))
+    );
+  };
 
   useEffect(() => {
     const userName = sessionStorage.getItem("userName");
@@ -43,11 +52,10 @@ function Home() {
     const list = localStorage.getItem("transactionsList");
     const hasLocalData = list && list !== "[]";
     if (hasLocalData) {
-      const localTxns = JSON.parse(hasLocalData);
+      const localTxns = JSON.parse(list);
 
       // Simulate server sync (compare later if needed)
       getAllTransactionsFromServer(userName).then((serverTxns) => {
-   
         const areEqual =
           JSON.stringify(localTxns) === JSON.stringify(serverTxns);
 
@@ -174,7 +182,6 @@ function Home() {
   }
 
   const filteredTransactions = transactions.filter((t) => {
-    
     const txDate = new Date(t.id); // custom parser
     const today = new Date();
     const currentYear = today.getFullYear();
@@ -204,10 +211,11 @@ function Home() {
   });
 
   const handleEdit = (txn) => {
+    setSelectedTxn(txn);
+    setShowEditModal(true);
     startEdit(txn);
   };
   const sendBackup = async () => {
- 
     if (!email || !email.includes("@")) {
       Swal.fire({
         icon: "error",
@@ -442,6 +450,13 @@ function Home() {
           onEdit={handleEdit}
           onDelete={deleteTransaction}
         />
+        {showEditModal && (
+          <EditTransactionModal
+            txn={selectedTxn}
+            onClose={() => setShowEditModal(false)}
+            onSave={handleSave}
+          />
+        )}
       </div>
     </>
   );

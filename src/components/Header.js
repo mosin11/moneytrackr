@@ -3,7 +3,7 @@ import CashFlowPieChart from './CashFlowPieChart';
 
 function Header({ transactions, tabLabel }) {
 
-const income = transactions .filter(t => ['in', 'cash_in'].includes(t.type)).reduce((acc, t) => acc + t.amount, 0);
+const income = transactions.filter(t => ['in', 'cash_in'].includes(t.type)).reduce((acc, t) => acc + t.amount, 0);
 const expense = transactions.filter(t => ['out', 'cash_out'].includes(t.type)).reduce((acc, t) => acc + t.amount, 0);
 
 const balance = income - expense;
