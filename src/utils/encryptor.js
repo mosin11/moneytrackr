@@ -1,9 +1,9 @@
 export async function encryptData(plainObj) {
   
- // const secretKey = process.env.REACT_APP_ENCRYPT_KEY;
+ const secretKey = process.env.REACT_APP_ENCRYPT_KEY;
 // Frontend: encryptData.js
   const text = JSON.stringify(plainObj);
-  const secretKey = 'My@ssphraseKey9875'; // must match backend
+  //const secretKey = 'My@ssphraseKey9875'; // must match backend
 
   const encoder = new TextEncoder();
   const keyMaterial = await crypto.subtle.digest('SHA-256', encoder.encode(secretKey));
