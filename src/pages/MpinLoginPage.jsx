@@ -11,19 +11,19 @@ export default function MpinLoginPage() {
   const navigate = useNavigate();
   const URL = API_ENDPOINTS;
   const email = getEmail();
-
   const refs = [useRef(), useRef(), useRef(), useRef()];
 
   useEffect(() => {
     if (!email) {
-      navigate('/login'); // fallback if no email is saved
+      navigate('/login');
     }
   }, [email, navigate]);
 
   const handleClear = () => {
-  setMpinArray(['', '', '', '']);
-  setError('');
-};
+    setMpinArray(['', '', '', '']);
+    setError('');
+    refs[0].current.focus();
+  };
 
   const handleInput = (e, index) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 1);
@@ -48,8 +48,7 @@ export default function MpinLoginPage() {
     try {
       const res = await axios.post(URL.VERIFY_MPIN, { email, mpin });
       saveToken(res.data.token);
-   
-      sessionStorage.setItem('userName',res.data.userName);
+      sessionStorage.setItem('userName', res.data.userName);
       navigate('/app');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -60,10 +59,12 @@ export default function MpinLoginPage() {
     <>
       <AuthHeader title="Enter MPIN" />
       <div className="container mt-5 text-center" style={{ maxWidth: 400 }}>
-        <div className="mb-3 text-muted">
-          Logging in as <strong>{email}</strong>
+        {/* Email Info */}
+        <div className="mb-3 text-muted fs-5">
+          Logging in as <strong className="text-dark">{email}</strong>
         </div>
 
+        {/* MPIN Inputs */}
         <div className="d-flex justify-content-center mb-3">
           {mpinArray.map((val, index) => (
             <input
@@ -74,24 +75,28 @@ export default function MpinLoginPage() {
               value={val}
               ref={refs[index]}
               onChange={(e) => handleInput(e, index)}
-              className="form-control text-center"
+              className="form-control text-center fw-bold"
               style={{
-                width: 50,
-                height: 50,
-                fontSize: 22,
-                marginRight: 10,
-                display: 'inline-block'
+                width: 60,
+                height: 60,
+                fontSize: 28,
+                marginRight: 12,
+                border: '2px solid #ccc',
+                borderRadius: 8,
               }}
             />
           ))}
         </div>
 
-        {error && <div className="alert alert-danger py-1">{error}</div>}
-        <button className="btn btn-primary w-100" onClick={handleLogin}>
+        {/* Error Message */}
+        {error && <div className="alert alert-danger py-2 fs-6">{error}</div>}
+
+        {/* Buttons */}
+        <button className="btn btn-primary w-100 fs-5 py-2" onClick={handleLogin}>
           Continue
         </button>
-        <button className="btn btn-secondary w-100 mt-2" onClick={handleClear}>
-        Clear
+        <button className="btn btn-secondary w-100 mt-2 fs-5 py-2" onClick={handleClear}>
+          Clear
         </button>
       </div>
     </>

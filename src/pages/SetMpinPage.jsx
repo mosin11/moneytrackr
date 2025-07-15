@@ -18,28 +18,28 @@ export default function SetMpinPage() {
   };
 
   const handleClear = () => {
-  setMpinArray(['', '', '', '']);
-  setConfirmMpinArray(['', '', '', '']);
-  setError('');
-};
+    setMpinArray(['', '', '', '']);
+    setConfirmMpinArray(['', '', '', '']);
+    setError('');
+    refs.mpin[0].current.focus();
+  };
+
   const handleInput = (e, index, type) => {
-  const value = e.target.value.replace(/\D/g, '').slice(0, 1);
-  const updateArray = type === 'mpin' ? [...mpinArray] : [...confirmMpinArray];
-  updateArray[index] = value;
+    const value = e.target.value.replace(/\D/g, '').slice(0, 1);
+    const updateArray = type === 'mpin' ? [...mpinArray] : [...confirmMpinArray];
+    updateArray[index] = value;
 
-  if (type === 'mpin') setMpinArray(updateArray);
-  else setConfirmMpinArray(updateArray);
+    if (type === 'mpin') setMpinArray(updateArray);
+    else setConfirmMpinArray(updateArray);
 
-  if (value) {
-    if (index < 3) {
-      refs[type][index + 1].current.focus();
-    } else if (type === 'mpin') {
-      // Focus first confirm box after last mpin digit
-      refs['confirm'][0].current.focus();
+    if (value) {
+      if (index < 3) {
+        refs[type][index + 1].current.focus();
+      } else if (type === 'mpin') {
+        refs['confirm'][0].current.focus();
+      }
     }
-  }
-};
-
+  };
 
   const handleSetMpin = async () => {
     const mpin = mpinArray.join('');
@@ -72,13 +72,14 @@ export default function SetMpinPage() {
         value={val}
         ref={refs[type][index]}
         onChange={(e) => handleInput(e, index, type)}
-        className="form-control text-center"
+        className="form-control text-center fw-bold"
         style={{
-          width: 50,
-          height: 50,
-          fontSize: 22,
-          marginRight: 10,
-          display: 'inline-block'
+          width: 60,
+          height: 60,
+          fontSize: 28,
+          marginRight: 12,
+          border: '2px solid #ccc',
+          borderRadius: 8
         }}
       />
     ));
@@ -86,22 +87,23 @@ export default function SetMpinPage() {
   return (
     <>
       <AuthHeader title="Set Your 4-Digit MPIN" />
-      <div className="container mt-4 text-center" style={{ maxWidth: 400 }}>
-        <label className="form-label">Enter MPIN</label>
-        <div className="d-flex justify-content-center mb-3">
+      <div className="container mt-4 text-center" style={{ maxWidth: 420 }}>
+        <label className="form-label fs-5 mb-2">Enter MPIN</label>
+        <div className="d-flex justify-content-center mb-4">
           {renderBoxes('mpin', mpinArray)}
         </div>
 
-        <label className="form-label">Confirm MPIN</label>
-        <div className="d-flex justify-content-center mb-3">
+        <label className="form-label fs-5 mb-2">Confirm MPIN</label>
+        <div className="d-flex justify-content-center mb-4">
           {renderBoxes('confirm', confirmMpinArray)}
         </div>
 
-        {error && <div className="alert alert-danger py-1">{error}</div>}
-        <button className="btn btn-success w-100" onClick={handleSetMpin}>
+        {error && <div className="alert alert-danger py-2 fs-6">{error}</div>}
+
+        <button className="btn btn-success w-100 fs-5 py-2" onClick={handleSetMpin}>
           Set MPIN
         </button>
-        <button className="btn btn-secondary w-100 mt-2" onClick={handleClear}>
+        <button className="btn btn-secondary w-100 mt-3 fs-5 py-2" onClick={handleClear}>
           Clear
         </button>
       </div>

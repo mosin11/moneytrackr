@@ -1,55 +1,82 @@
-
 import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
 
-
 function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
+  const handleEditClick = (txn) => onEdit(txn);
+  const handleDeleteClick = (txn) => onDelete(txn.id);
 
-  const handleEditClick = (txn) => {
-    
-    onEdit(txn); // Opens edit modal in Home
+  const baseStyle = {
+    fontSize: "0.95rem",
+    wordBreak: "break-word",
+    minWidth: "700px",
+    color: darkMode ? "#ffffff" : "#000000",
+    backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
+    borderColor: darkMode ? "#444" : "#dee2e6"
   };
 
-  const handleDeleteClick = (txn) => {
-    
-    onDelete(txn.id);
+  const theadStyle = {
+    backgroundColor: darkMode ? "#2d2d2d" : "rgb(57 206 236)",
+    color: darkMode ? "#ffffff" : "#000000",
+    borderColor: darkMode ? "#555" : "#ced4da"
+  };
+
+  const tbodyStyle = {
+    backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
+    color: darkMode ? "#e0e0e0" : "#000000",
+    borderColor: darkMode ? "#444" : "#dee2e6"
   };
 
   return (
-    <div className="card shadow-sm p-2 mb-4" style={{ minHeight: "200px" }}>
+    <div
+      className="card shadow-sm p-3 mb-4"
+      style={{
+        minHeight: "200px",
+        background: darkMode
+          ? "linear-gradient(90deg, #1c1c1c, #2d2d2d)"
+          : "linear-gradient(90deg, #f0f8ff, #e0eafc)",
+        color: darkMode ? "#ffffff" : "#000000",
+        borderRadius: "12px",
+        border: "none"
+      }}
+    >
       {transactions.length === 0 ? (
-        <p className={`text-center my-4 ${darkMode ? "text-dark" : "text-muted"}`}>
+        <p className={`text-center my-4 ${darkMode ? "text-light" : "text-muted"}`}>
           No transactions yet.
         </p>
       ) : (
-        <div className="table-wrapper">
+        <div className="table-responsive">
           <table
-            className={`text-center table table-bordered table-sm mb-0 ${
-              darkMode ? "table-dark" : ""
-            }`}
-            style={{ fontSize: "0.85rem", wordBreak: "break-word" }}
+            className="table text-center table-bordered table-sm align-middle mb-0"
+            style={baseStyle}
           >
-            <thead className={darkMode ? "table-secondary" : "table-primary"}>
+            <thead>
               <tr>
-                <th style={{ width: "50px" }}>S. No.</th>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th className="text-center">Actions</th>
+                <th style={{ ...theadStyle, width: "60px" }}>S. No.</th>
+                <th style={theadStyle}>Date</th>
+                <th style={theadStyle}>Description</th>
+                <th style={theadStyle}>Type</th>
+                <th style={theadStyle}>Amount</th>
+                <th style={{ ...theadStyle, textAlign: "center" }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="text-center">
+            <tbody>
               {transactions.map((txn, index) => (
                 <tr key={txn.id}>
-                  <td>{index + 1}</td>
-                  <td style={{ whiteSpace: "normal" }}>{txn.date}</td>
-                  <td style={{ whiteSpace: "normal" }}>{txn.desc || txn.description}</td>
-                  <td className={["cash_in", "in"].includes(txn.type) ? "text-success" : "text-danger"}>
+                  <td style={tbodyStyle}>{index + 1}</td>
+                  <td style={tbodyStyle}>{txn.date}</td>
+                  <td style={tbodyStyle}>{txn.desc || txn.description}</td>
+                  <td
+                    style={{
+                      ...tbodyStyle,
+                      color: ["cash_in", "in"].includes(txn.type)
+                        ? "lightgreen"
+                        : "tomato"
+                    }}
+                  >
                     {["cash_in", "in"].includes(txn.type) ? "Cash In" : "Cash Out"}
                   </td>
-                  <td>₹{txn.amount}</td>
-                  <td className="text-center">
-                    <div className="d-flex flex-column flex-sm-row justify-content-center gap-1">
+                  <td style={tbodyStyle}>₹{txn.amount}</td>
+                  <td style={tbodyStyle}>
+                    <div className="d-flex flex-column flex-sm-row justify-content-center gap-2">
                       <button
                         className="btn btn-sm btn-outline-primary"
                         onClick={() => handleEditClick(txn)}
@@ -72,8 +99,6 @@ function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
           </table>
         </div>
       )}
-
-     
     </div>
   );
 }

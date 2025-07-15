@@ -290,11 +290,13 @@ function Home() {
             <img
               src={logo}
               alt="MoneyTrackr Logo"
-              height="40"
+              height="45"
+              
               className="me-2"
             />
             <span
               className={`fw-bold ${darkMode ? "text-white" : "text-dark"}`}
+               style={{ fontSize: '1.5rem' }}
             >
               MoneyTrackr
             </span>
@@ -379,7 +381,7 @@ function Home() {
         <div className="row g-2 mb-3">
           <div className="col-12 col-sm-4">
             <button
-              className="btn btn-success w-100"
+              className="btn btn-success fs-5 w-100"
               onClick={() => {
                 const data = downloadExcel(fromDate, toDate);
                 exportToExcel(data, fromDate, toDate);
@@ -390,7 +392,7 @@ function Home() {
           </div>
           <div className="col-12 col-sm-4">
             <button
-              className="btn btn-danger w-100"
+              className="btn btn-danger fs-5 w-100"
               onClick={() => exportPDF(transactions, { download: true })}
             >
               📄 Download PDF
@@ -399,7 +401,7 @@ function Home() {
 
           <div className="col-12 col-sm-4">
             <button
-              className="btn btn-primary w-100"
+              className="btn btn-primary fs-5 w-100"
               onClick={() => setShowEmailInput(!showEmailInput)}
             >
               📧 Send to Email
@@ -417,11 +419,12 @@ function Home() {
                 placeholder="Enter email address"
                 value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ maxWidth: "300px" }}
+                
+                style={{ maxWidth: "100%", fontSize: "1rem", padding: "0.5rem 1rem" }}
               />
             </div>
             <div className="col-12 col-sm-4">
-              <button className="btn btn-secondary w-100" onClick={sendBackup}>
+              <button className="btn btn-secondary fs-5 w-100" onClick={sendBackup}>
                 Send
               </button>
             </div>
