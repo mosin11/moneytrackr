@@ -7,7 +7,7 @@ function TransactionList({ transactions, darkMode, onEdit, onDelete }) {
   const baseStyle = {
     fontSize: "0.95rem",
     wordBreak: "break-word",
-    minWidth: "700px",
+    minWidth: "100%",
     color: darkMode ? "#ffffff" : "#000000",
     backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
     borderColor: darkMode ? "#444" : "#dee2e6"
