@@ -38,6 +38,31 @@ function Home() {
   const [activeTab, setActiveTab] = useState("Daily");
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTxn, setSelectedTxn] = useState(null);
+  const [filteredByDate, setFilteredByDate] = useState([]);
+  const [isDateSearchActive, setIsDateSearchActive] = useState(false);
+ 
+
+  const handleSearch = () => {
+    if (!fromDate || !toDate) return;
+
+    const fromTime = new Date(fromDate).setHours(0, 0, 0, 0);
+    const toTime = new Date(toDate).setHours(23, 59, 59, 999);
+
+    const result = transactions.filter((t) => {
+      const txTime = new Date(parseCustomDate(t.date)).getTime();
+      return txTime >= fromTime && txTime <= toTime;
+    });
+
+    setFilteredByDate(result); // ✅ This updates the list
+    setIsDateSearchActive(true); // Optional: track if date filter is active
+  };
+
+  const handleClear = () => {
+    setFromDate("");
+    setToDate("");
+    setFilteredByDate([]);
+    setIsDateSearchActive(false); // Turn off date filtering
+  };
 
   const handleSave = (updatedTxn) => {
     setTransactions((prev) =>
@@ -291,12 +316,11 @@ function Home() {
               src={logo}
               alt="MoneyTrackr Logo"
               height="45"
-              
               className="me-2"
             />
             <span
               className={`fw-bold ${darkMode ? "text-white" : "text-dark"}`}
-               style={{ fontSize: '1.5rem' }}
+              style={{ fontSize: "1.5rem" }}
             >
               MoneyTrackr
             </span>
@@ -374,6 +398,8 @@ function Home() {
           toDate={toDate}
           setFromDate={setFromDate}
           setToDate={setToDate}
+          onSearch={handleSearch}
+          onClear={handleClear}
         />
 
         {/* Action Buttons */}
@@ -419,12 +445,18 @@ function Home() {
                 placeholder="Enter email address"
                 value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
-                
-                style={{ maxWidth: "100%", fontSize: "1rem", padding: "0.5rem 1rem" }}
+                style={{
+                  maxWidth: "100%",
+                  fontSize: "1rem",
+                  padding: "0.5rem 1rem",
+                }}
               />
             </div>
             <div className="col-12 col-sm-4">
-              <button className="btn btn-secondary fs-5 w-100" onClick={sendBackup}>
+              <button
+                className="btn btn-secondary fs-5 w-100"
+                onClick={sendBackup}
+              >
                 Send
               </button>
             </div>
@@ -448,7 +480,11 @@ function Home() {
           cancelEdit={cancelEdit}
         />
         <TransactionList
-          transactions={filteredTransactions}
+          transactions={
+            isDateSearchActive
+              ? filteredByDate
+              : filteredTransactions
+          }
           darkMode={darkMode}
           onEdit={handleEdit}
           onDelete={deleteTransaction}

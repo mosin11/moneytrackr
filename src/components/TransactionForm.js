@@ -10,22 +10,16 @@ function TransactionForm({ addTransaction }) {
   const [amount, setAmount] = useState('');
   const [desc, setDesc] = useState('');
   const descInputRef = useRef(null);
-  const formRef = useRef(null);
 
   function inferType(description = '') {
     const words = description.toLowerCase().split(/\s+/);
-
     for (let word of words) {
-      const matchOut = stringSimilarity.findBestMatch(word, cashOutKeywords);
-      if (matchOut.bestMatch.rating > 0.6) return 'out';
+      if (stringSimilarity.findBestMatch(word, cashOutKeywords).bestMatch.rating > 0.6) return 'out';
     }
-
     for (let word of words) {
-      const matchIn = stringSimilarity.findBestMatch(word, cashInKeywords);
-      if (matchIn.bestMatch.rating > 0.6) return 'in';
+      if (stringSimilarity.findBestMatch(word, cashInKeywords).bestMatch.rating > 0.6) return 'in';
     }
-
-    return 'out'; // default fallback
+    return 'out';
   }
 
   function formatDate(d) {
@@ -40,30 +34,17 @@ function TransactionForm({ addTransaction }) {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
     const hh = String(hours).padStart(2, '0');
-
     return `${dd}-${month}-${yyyy} ${hh}:${minutes} ${ampm}`;
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!desc.trim()) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Please enter a description',
-        text: 'Please enter a description!',
-      });
-      return;
+      return Swal.fire({ icon: 'error', title: 'Missing Description', text: 'Please enter a description!' });
     }
-
     const numAmount = Number(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Please enter a valid amount',
-        text: 'Please enter a valid amount!',
-      });
-      return;
+      return Swal.fire({ icon: 'error', title: 'Invalid Amount', text: 'Please enter a valid amount!' });
     }
 
     const detectedType = inferType(desc);
@@ -76,55 +57,107 @@ function TransactionForm({ addTransaction }) {
       amount: parseFloat(amount),
       desc: desc.trim(),
       type: detectedType,
-      email: email,
+      email,
       category: category.category,
       date: formatDate(now),
     };
 
     await addTransactionToServer(txn);
     addTransaction(txn);
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Transaction Added',
-      text: 'Transaction has been added successfully!',
-    });
+    Swal.fire({ icon: 'success', title: 'Transaction Added', text: 'Your transaction has been added!' });
 
     setAmount('');
     setDesc('');
-    descInputRef.current?.focus();
+    document.getElementById('closeModalBtn').click(); // close modal
   };
 
   return (
-    <form className="mb-4" ref={formRef} onSubmit={handleSubmit}>
-      <div className="row g-2">
-        <div className="col-md-4">
-          <input
-            ref={descInputRef}
-            type="text"
-            className="form-control"
-            placeholder="Description"
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-          />
-        </div>
-        <div className="col-md-3">
-          <input
-            type="number"
-            min="1"
-            className="form-control"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
-        <div className="col-md-2 d-flex">
-          <button className="btn btn-primary w-100" type="submit">
-            Add
-          </button>
+    <>
+      {/* Floating Button */}
+      <button
+        className="btn btn-primary rounded-circle shadow-lg"
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          fontSize: '24px',
+          zIndex: 1050,
+        }}
+        data-bs-toggle="modal"
+        data-bs-target="#addTxnModal"
+        title="Add Transaction"
+      >
+        +
+      </button>
+
+      {/* Modal */}
+      <div
+        className="modal fade"
+        id="addTxnModal"
+        tabIndex="-1"
+        aria-labelledby="addTxnModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div
+            className="modal-content"
+            style={{
+              background: 'linear-gradient(145deg, #f0f0f0, #ffffff)',
+              borderRadius: '15px',
+              boxShadow: '0 0 20px rgba(0,0,0,0.15)',
+            }}
+          >
+            <div className="modal-header border-0">
+              <h5 className="modal-title fw-bold" id="addTxnModalLabel">
+                💼 Add New Transaction
+              </h5>
+              <button
+                type="button"
+                id="closeModalBtn"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <div className="modal-body">
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Description</label>
+                  <input
+                    ref={descInputRef}
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. Grocery, Salary, Transfer..."
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">Amount (₹)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="form-control"
+                    placeholder="Enter amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-success w-100 mt-2">
+                  ✅ Add Transaction
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
-    </form>
+    </>
   );
 }
 

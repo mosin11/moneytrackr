@@ -1,62 +1,76 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import AuthHeader from './AuthHeader';
-import API_ENDPOINTS from '../config';
-import Swal from 'sweetalert2';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import AuthHeader from "./AuthHeader";
+import API_ENDPOINTS from "../config";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
   const [formData, setFormData] = useState({
-    name: '',
-    mobile: '',
-    email: '',
-    otp: ''
+    name: "",
+    mobile: "",
+    email: "",
+    otp: "",
   });
 
   const URL = API_ENDPOINTS;
   const navigate = useNavigate();
 
-  const handleChange = e => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSendOtp = async () => {
     try {
+      setSendingOtp(true);
+      setLoading(true);
       await axios.post(URL.REGISTER_SEND_OTP, {
         name: formData.name,
         mobile: formData.mobile,
-        email: formData.email
+        email: formData.email,
       });
       setStep(2);
     } catch (err) {
-        Swal.fire({
-                  icon: 'error',
-                  title: 'Error sending OTP',
-                  text: err.response?.data?.message || 'Login failed',
-                    });
+      Swal.fire({
+        icon: "error",
+        title: "Error sending OTP",
+        text: err.response?.data?.message || "Login failed",
+      });
+    } finally {
+      setSendingOtp(false);
+      setLoading(false);
     }
   };
 
   const handleVerify = async () => {
     try {
+      setLoading(true);
+      setVerifyingOtp(true);
       await axios.post(URL.REGISTER_VERIFY_OTP, {
         email: formData.email,
-        otp: formData.otp
+        otp: formData.otp,
       });
 
       Swal.fire({
-                  icon: 'success',
-                  title: 'Registration successful',
-                  text: 'Registration successful',
-                    });
-      navigate('/login');
+        icon: "success",
+        title: "Registration successful",
+        text: "Registration successful",
+      });
+      navigate("/login");
     } catch (err) {
       Swal.fire({
-        icon: 'error',
-        title: 'Verification failed',
-        text: err.response?.data?.message || 'Verification failed',
-        });
+        icon: "error",
+        title: "Verification failed",
+        text: err.response?.data?.message || "Verification failed",
+      });
+    } finally {
+      setLoading(false);
+      setVerifyingOtp(false);
     }
   };
 
@@ -64,7 +78,7 @@ export default function RegisterPage() {
     <>
       <AuthHeader title="Create Your Account" />
 
-      <div className="container mt-5" style={{ maxWidth: '450px' }}>
+      <div className="container mt-5" style={{ maxWidth: "450px" }}>
         <h2 className="mb-4 text-center">Register</h2>
 
         {step === 1 ? (
@@ -97,8 +111,18 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            <button className="btn btn-primary w-100" onClick={handleSendOtp}>
-              Send OTP
+            <button
+              className="btn btn-primary w-100"
+              onClick={handleSendOtp}
+              disabled={sendingOtp}
+            >
+              {sendingOtp ? (
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
+              ) : null}
+              {sendingOtp ? "Sending OTP..." : "Register"}
             </button>
           </>
         ) : (
@@ -112,12 +136,43 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            <button className="btn btn-success w-100" onClick={handleVerify}>
-              Verify & Register
+            <button
+              className="btn btn-success w-100"
+              onClick={handleVerify}
+              disabled={verifyingOtp}
+            >
+              {verifyingOtp ? (
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
+              ) : null}
+              {verifyingOtp ? "Verifying..." : "Verify & Register"}
             </button>
           </>
         )}
       </div>
+
+      {loading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(255,255,255,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -46,3 +46,17 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+.modal-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

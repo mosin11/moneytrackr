@@ -4,7 +4,7 @@ echo === Adding all changes to Git ===
 git init
 git remote add origin https://github.com/mosin11/moneytrackr.git
 git add .
-git commit -m "encrepted logics added for all api"
+git commit -m "added loading states and date search"
 echo === 🌿 Setting branch to '%BRANCH%' ===
 git branch -M %BRANCH%
 git branch -M main
