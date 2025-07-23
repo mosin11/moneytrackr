@@ -109,14 +109,25 @@ export const keywordToCategory = {
     service: 'Others',
 
 };
+
 export const cashInKeywords = [
-    'salary', 'income', 'received', 'credited', 'deposit',
-    'refund', 'bonus', 'interest', 'pay', 'transfer from'
+  'salary', 'income', 'received', 'credited', 'deposit',
+  'refund', 'bonus', 'interest', 'transfer from',
+  'cashback', 'upi collect', 'reversal', 'reward',
+  'gift received', 'reimbursed', 'neft credit', 'imps credit',
+  'rtgs credit', 'paytm received', 'phonepe received',
+  'gpay received', 'loan disbursed', 'amount added',
+  'settlement received'
 ];
 
 export const cashOutKeywords = [
-    'send', 'paid', 'pay', 'transferred', 'spent', 'gave', 'purchase', 'buy', 'order'
+  'send', 'paid', 'pay', 'transferred', 'spent', 'gave',
+  'purchase', 'buy', 'order', 'credit card', 'bill payment',
+  'debited', 'payment', 'upi to', 'transfer to', 'withdrawal',
+  'emi', 'subscription', 'credit card payment', 'loan repayment',
+  'cash withdrawal', 'atm withdrawal', 'sent to', 'donation',
+  'gift given', 'rent paid', 'electricity bill', 'mobile recharge',
+  'fuel', 'insurance payment', 'auto debit', 'shopping',
+  'mandate debit', 'gpay to', 'phonepe to', 'paytm to'
 ];
-
-
 
