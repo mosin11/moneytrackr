@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { cashInKeywords, cashOutKeywords } from '../utils/categoryMapper';
 import stringSimilarity from 'string-similarity';
 import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
 import Swal from 'sweetalert2';
 import { getEmail } from '../utils/auth';
 import { addTransactionToServer } from '../utils/apiTransactions';
+import { Modal } from 'bootstrap';
 
 function TransactionForm({ addTransaction }) {
   const [amount, setAmount] = useState('');
@@ -68,26 +69,100 @@ function TransactionForm({ addTransaction }) {
 
     setAmount('');
     setDesc('');
-    document.getElementById('closeModalBtn').click(); // close modal
+    document.getElementById('closeModalBtn').click();
   };
+
+  // Floating button drag logic
+  const [btnPos, setBtnPos] = useState({ x: 30, y: 30 });
+  const [dragging, setDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const wasDragged = useRef(false);
+
+  const handleDragStart = (e) => {
+    wasDragged.current = false;
+    setDragging(true);
+    const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    dragOffset.current = {
+      x: clientX - btnPos.x,
+      y: clientY - btnPos.y,
+    };
+    e.stopPropagation();
+  };
+
+  const handleDragMove = (e) => {
+    if (!dragging) return;
+    wasDragged.current = true;
+
+    const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+    let newX = clientX - dragOffset.current.x;
+    let newY = clientY - dragOffset.current.y;
+
+    const btnSize = 60;
+    const padding = 10;
+    const maxX = window.innerWidth - btnSize - padding;
+    const maxY = window.innerHeight - btnSize - padding;
+    newX = Math.max(padding, Math.min(newX, maxX));
+    newY = Math.max(padding, Math.min(newY, maxY));
+
+    setBtnPos({ x: newX, y: newY });
+    e.preventDefault();
+  };
+
+  const handleDragEnd = () => {
+    setDragging(false);
+  };
+
+  const handleClick = () => {
+    if (!wasDragged.current) {
+      const modal = new Modal(document.getElementById('addTxnModal'));
+      modal.show();
+    }
+  };
+
+  useEffect(() => {
+    if (dragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('touchmove', handleDragMove, { passive: false });
+      window.addEventListener('touchend', handleDragEnd);
+    } else {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [dragging]);
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Draggable Floating Button */}
       <button
         className="btn btn-primary rounded-circle shadow-lg"
         style={{
           position: 'fixed',
-          bottom: '30px',
-          right: '30px',
+          left: btnPos.x,
+          top: btnPos.y,
           width: '60px',
           height: '60px',
           fontSize: '24px',
           zIndex: 1050,
+          touchAction: 'none',
+          cursor: dragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
         }}
-        data-bs-toggle="modal"
-        data-bs-target="#addTxnModal"
         title="Add Transaction"
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
+        onClick={handleClick}
       >
         +
       </button>
@@ -149,10 +224,37 @@ function TransactionForm({ addTransaction }) {
                   />
                 </div>
 
-                <button type="submit" className="btn btn-success w-100 mt-2">
-                  ✅ Add Transaction
+               
+              
+
+              <div className="d-flex gap-2 mt-2">
+                 <button type="submit" className="btn btn-success w-100 mt-2">
+                  Add Transaction
                 </button>
-              </form>
+                <button
+                  type="button"
+                  className="btn btn-secondary w-50"
+                  onClick={() => {
+                    setAmount('');
+                    setDesc('');
+                    descInputRef.current && descInputRef.current.focus();
+                  }}
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-danger w-50"
+                  data-bs-dismiss="modal"
+                  onClick={() => {
+                    setAmount('');
+                    setDesc('');
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+</form>
             </div>
           </div>
         </div>
