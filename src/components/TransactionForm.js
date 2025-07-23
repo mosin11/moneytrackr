@@ -73,7 +73,16 @@ function TransactionForm({ addTransaction }) {
   };
 
   // Floating button drag logic
-  const [btnPos, setBtnPos] = useState({ x: 30, y: 30 });
+
+  const [btnPos, setBtnPos] = useState(() => {
+  const btnSize = 60;
+  const padding = 20;
+  return {
+    x: window.innerWidth - btnSize - padding,
+    y: window.innerHeight - btnSize - padding,
+  };
+});
+
   const [dragging, setDragging] = useState(false);
   const dragOffset = useRef({ x: 0, y: 0 });
   const wasDragged = useRef(false);
