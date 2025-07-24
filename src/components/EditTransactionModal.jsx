@@ -1,11 +1,13 @@
 // components/EditTransactionModal.jsx
 import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
+
 import { getCategoryFromDescription } from "../utils/getCategoryFromDescription";
 import stringSimilarity from "string-similarity";
 import { cashInKeywords, cashOutKeywords } from "../utils/categoryMapper";
 import { getEmail } from "../utils/auth";
 import { updateTransactionOnServer } from "../utils/apiTransactions";
+import { showAlert } from "../utils/alerts";
+
 
 function EditTransactionModal({ txn, onClose, onSave }) {
   const [desc, setDesc] = useState("");
@@ -33,11 +35,7 @@ function EditTransactionModal({ txn, onClose, onSave }) {
 
   const handleUpdate = async () => {
     if (!desc.trim() || isNaN(amount) || Number(amount) <= 0) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid input",
-        text: "Please enter valid description and amount",
-      });
+      showAlert("warning", "Invalid input","Please enter valid description and amount")
       return;
     }
 
@@ -53,14 +51,12 @@ function EditTransactionModal({ txn, onClose, onSave }) {
     try {
       await updateTransactionOnServer(updatedTxn);
       onSave(updatedTxn);
-      Swal.fire({ icon: "success", title: "Transaction Updated" });
+      showAlert("success","success", "Transaction Updated")
+   
       onClose();
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed to update",
-        text: err.message || "Try again later.",
-      });
+      showAlert("error", "Failed to update",err.message || "Try again later.")
+      
     }
   };
 

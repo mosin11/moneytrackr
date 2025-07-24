@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import AuthHeader from "./AuthHeader";
 import API_ENDPOINTS from "../config";
 import Swal from "sweetalert2";
+import { showAlert } from "../utils/alerts";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,11 +30,8 @@ export default function LoginPage() {
 
   const sendOtp = async () => {
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Email",
-        text: "Please enter a valid email address!",
-      });
+      showAlert("error", "Invalid Email", "Please enter a valid email address!")
+      
       return;
     }
 
@@ -43,11 +41,8 @@ export default function LoginPage() {
       setStep(2);
       setResendCooldown(30); // 🕒 30 seconds cooldown
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed to send OTP",
-        text: err.response?.data?.message || "Failed to send OTP",
-      });
+      showAlert("error","Failed to send OTP",err.response?.data?.message || "Failed to send OTP")
+      
     } finally {
       setLoading(false);
     }

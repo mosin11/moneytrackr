@@ -15,9 +15,11 @@ import TabFilter from "./components/TabFilter";
 import DateRangePicker from "./components/DateRangePicker";
 import useTransactions from "./components/useTransactions";
 import logo from "./assets/logo.png";
-import Swal from "sweetalert2";
+
 import { getAllTransactionsFromServer } from "./utils/apiTransactions";
 import EditTransactionModal from "./components/EditTransactionModal";
+import { showAlert } from "./utils/alerts";
+
 
 function Home() {
   const {
@@ -242,11 +244,8 @@ function Home() {
   };
   const sendBackup = async () => {
     if (!email || !email.includes("@")) {
-      Swal.fire({
-        icon: "error",
-        title: "Please enter a valid email address",
-        text: "Please enter a valid email address",
-      });
+      showAlert( "warning","Please enter a valid email address","Please enter a valid email address")
+      
       return;
     }
 
@@ -265,25 +264,16 @@ function Home() {
 
       const result = await response.json();
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "✅ Backup Sent!",
-          text: result.message || "Backup sent successfully!",
-        });
+        showAlert("success","✅ Backup Sent!",result.message || "Backup sent successfully!")
+       
         setShowEmailInput(false);
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Backup Sent!",
-          text: result.message || "Failed to send backup.",
-        });
+        showAlert("error","Backup Sent!",  result.message || "Failed to send backup.");
+       
       }
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Something went wrong while sending the backup!",
-      });
+      showAlert("error","Error",error.message || "Something went wrong while sending the backup!");
+      
     }
   };
 

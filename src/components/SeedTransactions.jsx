@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import { showAlert } from '../utils/alerts';
+
+
 
 const SeedTransactions = () => {
   const [jsonText, setJsonText] = useState('');
@@ -14,22 +16,13 @@ const SeedTransactions = () => {
       }
 
       localStorage.setItem('transactionsList', JSON.stringify(parsed));
-
-      Swal.fire({
-        icon: 'success',
-        title: '✅ Transactions Seeded!',
-        text: 'Saved to localStorage. Redirecting to app...',
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      showAlert("success",'✅ Transactions Seeded!','Saved to localStorage. Redirecting to app...',)
+    
 
       setTimeout(() => navigate('/dashboard'), 2000);
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: '❌ Invalid JSON!',
-        text: err.message || 'Could not parse the JSON.',
-      });
+      showAlert( "error",'❌ Invalid JSON!',err.message || 'Could not parse the JSON.',);
+      
     }
   };
 

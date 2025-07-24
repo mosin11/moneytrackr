@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { cashInKeywords, cashOutKeywords } from '../utils/categoryMapper';
 import stringSimilarity from 'string-similarity';
 import { getCategoryFromDescription } from '../utils/getCategoryFromDescription';
-import Swal from 'sweetalert2';
+
 import { getEmail } from '../utils/auth';
 import { addTransactionToServer } from '../utils/apiTransactions';
 import { Modal } from 'bootstrap';
+import { showAlert } from '../utils/alerts';
+
 
 function TransactionForm({ addTransaction }) {
   const [amount, setAmount] = useState('');
@@ -41,11 +43,13 @@ function TransactionForm({ addTransaction }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!desc.trim()) {
-      return Swal.fire({ icon: 'error', title: 'Missing Description', text: 'Please enter a description!' });
+      
+      return showAlert("warning",'Missing Description','Please enter a description!')
     }
     const numAmount = Number(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      return Swal.fire({ icon: 'error', title: 'Invalid Amount', text: 'Please enter a valid amount!' });
+      showAlert("warning",'Invalid Amount','Please enter a valid amount!' )
+      return ;
     }
 
     const detectedType = inferType(desc);
@@ -65,7 +69,8 @@ function TransactionForm({ addTransaction }) {
 
     await addTransactionToServer(txn);
     addTransaction(txn);
-    Swal.fire({ icon: 'success', title: 'Transaction Added', text: 'Your transaction has been added!' });
+    showAlert("success",'Transaction Added','Your transaction has been added!' )
+
 
     setAmount('');
     setDesc('');

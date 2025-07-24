@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import stringSimilarity from 'string-similarity';
-import Swal from 'sweetalert2';
+
 import { getEmail } from '../utils/auth';
 
 import {
@@ -15,6 +15,8 @@ import {
   cashInKeywords,
   cashOutKeywords,
 } from '../utils/categoryMapper';
+import { showAlert } from '../utils/alerts';
+import Swal from 'sweetalert2';
 
 export default function useTransactions() {
   const [transactions, setTransactions] = useState([]);
@@ -30,7 +32,8 @@ export default function useTransactions() {
     async function fetchTransactions() {
 
       if (!email) {
-        Swal.fire('Login Required', 'Please log in to view transactions.', 'warning');
+        showAlert('Login Required','Please log in to view transactions.')
+    
         return;
       }
 
@@ -61,7 +64,8 @@ export default function useTransactions() {
         }
 
       } catch (err) {
-        Swal.fire('Error', 'Failed to fetch transactions from server. Loading local data.', 'error');
+        showAlert( 'error','Error', 'Failed to fetch transactions from server. Loading local data.',)
+ 
         const saved = localStorage.getItem('transactionsList');
         if (saved) setTransactions(JSON.parse(saved));
       }
@@ -124,14 +128,17 @@ export default function useTransactions() {
       if (result.isConfirmed) {
         try {
           if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return Swal.fire('Invalid Email', 'Please log in again.', 'error');
+            showAlert('error','Invalid Email', 'Please log in again.')
+            return 
           }
 
           await deleteTransactionFromServer({ id, email });
           setTransactions(transactions.filter((t) => t.id !== id));
-          Swal.fire('Deleted!', 'Transaction has been removed.', 'success');
+          showAlert('success','Deleted!', 'Transaction has been removed.')
+     
         } catch (err) {
-          Swal.fire('Error', 'Failed to delete transaction from server.', 'error');
+          showAlert('error','Error', 'Failed to delete transaction from server.',)
+          
         }
       }
     });
@@ -142,15 +149,18 @@ export default function useTransactions() {
     const now = new Date();
 
     if (!desc.trim()) {
-      return Swal.fire('Error', 'Please enter a description.', 'error');
+      showAlert('error','Error', 'Please enter a description.',)
+      return 
     }
 
     if (isNaN(amt) || amt <= 0) {
-      return Swal.fire('Error', 'Please enter a valid positive amount.', 'error');
+      showAlert('error','Error', 'Please enter a valid positive amount.',)
+      return 
     }
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return Swal.fire('Invalid Email', 'User email missing or invalid. Login again.', 'error');
+      showAlert('error','Invalid Email', 'User email missing or invalid. Login again.',)
+      return 
     }
 
     const newTxn = {
@@ -171,16 +181,18 @@ export default function useTransactions() {
         setTransactions((prev) =>
           prev.map((t) => (t.id === editId ? newTxn : t))
         );
-        Swal.fire('Updated', 'Transaction updated successfully!', 'success');
+        showAlert('success','Updated', 'Transaction updated successfully!',)
+        
       } else {
         await addTransactionToServer(newTxn);
         setTransactions((prev) => [newTxn, ...prev]);
-        Swal.fire('Added', 'Transaction added successfully!', 'success');
+        showAlert('success','Added', 'Transaction added successfully!', );
       }
 
       cancelEdit();
     } catch (err) {
-      Swal.fire('Server Error', err?.message || 'Failed to sync with server.', 'error');
+
+      showAlert( 'error','Server Error', err?.message || 'Failed to sync with server.');
     }
   };
 
