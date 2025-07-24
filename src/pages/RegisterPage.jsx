@@ -3,7 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AuthHeader from "./AuthHeader";
 import API_ENDPOINTS from "../config";
-import Swal from "sweetalert2";
+
+import { showAlert } from "../utils/alerts";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
@@ -36,11 +37,8 @@ export default function RegisterPage() {
       });
       setStep(2);
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error sending OTP",
-        text: err.response?.data?.message || "Login failed",
-      });
+      showAlert("error", "Error sending OTP",err.response?.data?.message || "Login failed")
+      
     } finally {
       setSendingOtp(false);
       setLoading(false);
@@ -55,19 +53,12 @@ export default function RegisterPage() {
         email: formData.email,
         otp: formData.otp,
       });
-
-      Swal.fire({
-        icon: "success",
-        title: "Registration successful",
-        text: "Registration successful",
-      });
+      showAlert("success","Registration successful","Registration successful")
+      
       navigate("/login");
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Verification failed",
-        text: err.response?.data?.message || "Verification failed",
-      });
+      showAlert("error", "Verification failed",err.response?.data?.message || "Verification failed")
+     
     } finally {
       setLoading(false);
       setVerifyingOtp(false);

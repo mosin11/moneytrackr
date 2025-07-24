@@ -4,7 +4,7 @@ import { saveToken } from "../utils/auth";
 import { useNavigate, Link } from "react-router-dom";
 import AuthHeader from "./AuthHeader";
 import API_ENDPOINTS from "../config";
-import Swal from "sweetalert2";
+
 import { showAlert } from "../utils/alerts";
 
 export default function LoginPage() {
@@ -50,11 +50,8 @@ export default function LoginPage() {
 
   const verifyLogin = async () => {
     if (!otp) {
-      Swal.fire({
-        icon: "error",
-        title: "Enter the OTP sent to your email",
-        text: "Enter the OTP sent to your email",
-      });
+      showAlert("error", "Enter the OTP sent to your email","Enter the OTP sent to your email")
+      
       return;
     }
 
@@ -65,11 +62,8 @@ export default function LoginPage() {
       localStorage.setItem("userEmail", email);
       navigate("/setmpin");
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Login failed",
-        text: err.response?.data?.message || "Login failed",
-      });
+      showAlert("error", "Login failed",err.response?.data?.message || "Login failed")
+      
     } finally {
       setLoading(false);
     }
