@@ -19,6 +19,7 @@ import logo from "./assets/logo.png";
 import { getAllTransactionsFromServer } from "./utils/apiTransactions";
 import EditTransactionModal from "./components/EditTransactionModal";
 import { showAlert } from "./utils/alerts";
+import UserDropdown from "./components/UserDropdown";
 
 
 function Home() {
@@ -328,46 +329,7 @@ function Home() {
               🔁 Seed Data
             </Link>
 
-            {/* User Dropdown */}
-            <div className="dropdown">
-              <button
-                className={`btn btn-sm dropdown-toggle ${
-                  darkMode ? "btn-outline-light" : "btn-outline-dark"
-                }`}
-                type="button"
-                id="userDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                👤 {userName}
-              </button>
-              <ul
-                className={`dropdown-menu dropdown-menu-end ${
-                  darkMode ? "bg-dark text-light" : ""
-                }`}
-                aria-labelledby="userDropdown"
-              >
-                <li>
-                  <span className="dropdown-item-text">
-                    Signed in as <strong>{userName}</strong>
-                  </span>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item text-danger"
-                    onClick={() => {
-                      localStorage.clear();
-                      window.location.href = "/login";
-                    }}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <UserDropdown userName={userName} darkMode ={darkMode} />
 
             {/* Theme Toggle */}
             <button
