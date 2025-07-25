@@ -53,18 +53,28 @@ export async function exportPDF(transactions, options = { download: true }) {
     const tableColumn = ['S. No.', 'Date', 'Type', 'Description', 'Amount'];
 
     let totalIn = 0, totalOut = 0;
-    
-    const tableRows = transactions.map((txn,index) => {
-        const amount = txn.amount;
-        txn.type === 'in' ? totalIn += amount : totalOut += amount;
-        return [
-             `${index + 1}`, 
-            txn.date,
-            txn.type === 'in' ? 'Cash In' : 'Cash Out',
-            txn.desc || '',
-            `INR ${amount}`
-        ];
-    });
+       
+const tableRows = transactions.map((txn, index) => {
+  const type = txn.type?.toLowerCase();
+  const amount = txn.amount || 0;
+
+  if (['in', 'cash_in'].includes(type)) {
+    totalIn += amount;
+  }
+
+  if (['out', 'cash_out'].includes(type)) {
+    totalOut += amount;
+  }
+
+  return [
+    `${index + 1}`,
+    txn.date,
+    ['in', 'cash_in'].includes(type) ? 'Cash In' : 'Cash Out',
+    txn.desc || txn.description || '',
+    `INR ${amount}`
+  ];
+});
+
 
     autoTable(doc, {
         startY: 35,
